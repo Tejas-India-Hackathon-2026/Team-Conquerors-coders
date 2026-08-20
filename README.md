@@ -196,6 +196,6 @@ Voice / Visual Response
 - **Eligibility Engine** — Evaluates whether schemes match user requirements.
 - **Scheme Directory** — Allows users to explore available schemes.
 - **Scheme Details** — Displays detailed information about selected schemes.
-- **CSC Locator** — Helps
+- **CSC Locator** —
 -
 -
