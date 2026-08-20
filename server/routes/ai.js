@@ -3,24 +3,27 @@ import schemesData from '../data/schemes.json' assert { type: 'json' };
 
 const router = express.Router();
 
-// Helper to extract citizen profile from text with regional dialects
+// Helper to extract complete multi-field citizen profile from text
 function extractProfile(text = '') {
   const lower = text.toLowerCase().trim();
   const profile = {
     age: null,
     gender: 'unspecified',
-    occupation: null,
-    hasLand: false,
-    landSize: null,
-    hasRationCard: false,
-    isStudent: false,
-    educationLevel: null,
-    housingType: null,
-    healthNeed: false,
-    businessIntent: false,
-    cropDamage: false,
-    location: { state: 'Bihar', district: null },
-    tags: []
+    location_type: 'any',
+    district: null,
+    occupation: 'any',
+    income_level: null,
+    estimated_income: null,
+    social_category: 'any',
+    disability_status: false,
+    marital_status: 'any',
+    education_level: null,
+    has_land: false,
+    has_ration_card: false,
+    has_pucca_house: null,
+    needs: [],
+    tags: [],
+    suggestedFollowUps: []
   };
 
   if (!lower) return profile;
@@ -30,84 +33,120 @@ function extractProfile(text = '') {
   if (ageMatch && ageMatch[1]) {
     profile.age = parseInt(ageMatch[1], 10);
     profile.tags.push(`उम्र: ${profile.age} वर्ष`);
-  } else if (/bujurg|buddhe|buddha|budhiya|vridha|senior|dada|dadi|baba|sasur|60 ke/i.test(lower)) {
+  } else if (/bujurg|buddhe|vridha|senior citizen|dada|dadi|baba|sasur|60 ke/i.test(lower)) {
     profile.age = 65;
     profile.tags.push('उम्र: 60+ (वरिष्ठ नागरिक)');
   }
 
-  // Gender
-  if (/ladki|beti|mahila|aurat|female|girl|kanya|guriya|bachi/i.test(lower)) {
+  // Gender & Marital Status
+  if (/widow|vidhwa|patidev guzar gaye|pati nahi rahe/i.test(lower)) {
     profile.gender = 'female';
-    profile.tags.push('महिला / छात्रा');
+    profile.marital_status = 'widow';
+    profile.tags.push('स्थिति: विधवा महिला (Widow)');
+  } else if (/ladki|beti|mahila|aurat|female|girl|kanya|guriya/i.test(lower)) {
+    profile.gender = 'female';
+    profile.tags.push('लिंग: महिला / छात्रा');
+    if (/unmarried|avivahit|kunwari/i.test(lower)) profile.marital_status = 'unmarried';
+  } else if (/purush|male|ladka|beta|kisan bhai|aadmi/i.test(lower)) {
+    profile.gender = 'male';
+    profile.tags.push('लिंग: पुरुष');
   }
 
-  // Occupation (Bhojpuri/Maithili terms included)
-  if (/kisan|farmer|kheti|zameen|jameen|bigha|katha|acre|fasal|khet|krishi|krishak|bataidar|batai|jotna|hal|beej/i.test(lower)) {
+  // Disability
+  if (/divyang|viklang|handicapped|disability|udid|tricycle|wheelchair/i.test(lower)) {
+    profile.disability_status = true;
+    profile.needs.push('disability_support');
+    profile.tags.push('विशेष श्रेणी: दिव्यांगजन (Divyangjan)');
+  }
+
+  // Social Category
+  if (/muslim|christian|sikh|buddhist|jain|minority|alpsankhyak/i.test(lower)) {
+    profile.social_category = 'minority';
+    profile.tags.push('वर्ग: अल्पसंख्यक (Minority)');
+  } else if (/sc|dalit|mahadalit|anusuchit jati/i.test(lower)) {
+    profile.social_category = 'sc';
+    profile.tags.push('वर्ग: अनुसूचित जाति (SC)');
+  } else if (/st|tribal|adivasi/i.test(lower)) {
+    profile.social_category = 'st';
+    profile.tags.push('वर्ग: अनुसूचित जनजाति (ST)');
+  } else if (/obc|ebc|pichhda/i.test(lower)) {
+    profile.social_category = 'obc';
+    profile.tags.push('वर्ग: पिछड़ा वर्ग (OBC/EBC)');
+  }
+
+  // Occupation
+  if (/artisan|karigar|badhai|carpenter|lohar|blacksmith|mistri|mason|darji|tailor|nai|barber|dhobi|kumhar|mochi/i.test(lower)) {
+    profile.occupation = 'artisan';
+    profile.tags.push('पेशा: पारंपरिक कारीगर / शिल्पकार');
+  } else if (/dukan|shop|shopkeeper|kirana|retail|business|startup|thela|vendor|footpath/i.test(lower)) {
+    profile.occupation = 'shopkeeper';
+    profile.tags.push('पेशा: दुकानदार / सूक्ष्म कारोबारी');
+  } else if (/student|padhai|college|school|chhatra|inter|12th|10th|matric|graduation|degree|btech|fees|scholarship/i.test(lower)) {
+    profile.occupation = 'student';
+    profile.tags.push('पेशा: विद्यार्थी / पढ़ाई');
+  } else if (/mazdoor|majdoor|daily wage|dihadi|kuli|rickshaw|shramik|e-shram|mgnrega/i.test(lower)) {
+    profile.occupation = 'laborer';
+    profile.tags.push('पेशा: असंगठित दिहाड़ी मजदूर');
+  } else if (/farmer|kisan|kheti|bataidar|krishi/i.test(lower)) {
     profile.occupation = 'farmer';
     profile.tags.push('पेशा: किसान / खेती');
-  } else if (/student|padhai|padhe|college|school|chhatra|inter|12th|10th|matric|dasvi|barahvi|graduation|degree|btech|polytechnic|fees/i.test(lower)) {
-    profile.occupation = 'student';
-    profile.isStudent = true;
-    profile.tags.push('पेशा: विद्यार्थी');
-  } else if (/dukan|dukani|business|startup|rojgar|karobar|factory|karkhana|entrepreneur|dukaan|workshop|welding|dhandha/i.test(lower)) {
-    profile.occupation = 'business';
-    profile.businessIntent = true;
-    profile.tags.push('इरादा: नया व्यापार / दुकान');
-  } else if (/mazdoor|majdoor|daily wage|dihadi|kuli|rickshaw|thela|shramik|kamgar|beldari/i.test(lower)) {
-    profile.occupation = 'daily-wager';
-    profile.tags.push('पेशा: दिहाड़ी मजदूर');
-  } else if (profile.age >= 60 || /pension|bujurg|vridha|buddha/i.test(lower)) {
-    profile.occupation = 'elderly';
-    profile.tags.push('वर्ग: वरिष्ठ नागरिक (60+)');
+  } else if (/berojgar|unemployed|job seeker|naukri/i.test(lower)) {
+    profile.occupation = 'unemployed';
+    profile.tags.push('पेशा: बेरोजगार युवा');
+  }
+
+  // Education
+  if (/graduation|graduate|degree|ba|bsc|bcom|btech/i.test(lower)) {
+    profile.education_level = 'graduate';
+    profile.tags.push('शिक्षा: स्नातक (Graduation)');
+  } else if (/12th|inter|intermediate|barahvi|12 pass/i.test(lower)) {
+    profile.education_level = '12th_pass';
+    profile.tags.push('शिक्षा: 12वीं पास (Intermediate)');
+  } else if (/10th|matric|dasvi/i.test(lower)) {
+    profile.education_level = '10th_pass';
+    profile.tags.push('शिक्षा: 10वीं पास (Matric)');
   }
 
   // Land
-  if (/zameen|jameen|land|bigha|katha|acre|dismil|khet/i.test(lower)) {
-    profile.hasLand = true;
+  if (/zameen|jameen|land|bigha|katha|acre/i.test(lower)) {
+    profile.has_land = true;
     profile.tags.push('जमीन: कृषि भूमि उपलब्ध');
   }
 
-  // Crop damage
-  if (/sukha|baadh|barish|nuksan|barbaad|keeda|loss|bima|pani me dub/i.test(lower)) {
-    profile.cropDamage = true;
-    profile.tags.push('फसल क्षति / मुआवजा');
-  }
-
   // Housing
-  if (/kaccha|kacha|jhopdi|jhopra|ghar nahi|chhat nahi|pucca|tirpal/i.test(lower)) {
-    profile.housingType = 'kutcha';
+  if (/kaccha|jhopdi|ghar nahi|chhat nahi|pucca/i.test(lower)) {
+    profile.has_pucca_house = false;
     profile.tags.push('आवास: कच्चा मकान');
   }
 
   // Health
-  if (/ilaaj|ilaj|hospital|aspatal|operation|bimari|bemar|dawa|doctor|daktar|swasthya/i.test(lower)) {
-    profile.healthNeed = true;
+  if (/ilaaj|ilaj|hospital|aspatal|operation|bimari|dawa|doctor/i.test(lower)) {
+    profile.needs.push('health_treatment');
     profile.tags.push('जरूरत: अस्पताल / इलाज');
   }
 
   // Ration
-  if (/ration|bpl|secc|garib|gareeb/i.test(lower)) {
-    profile.hasRationCard = true;
+  if (/ration|bpl|secc|garib/i.test(lower)) {
+    profile.has_ration_card = true;
     profile.tags.push('राशन कार्ड: उपलब्ध (BPL)');
   }
 
-  // District
-  const biharDistricts = ['jamui', 'patna', 'gaya', 'muzaffarpur', 'bhagalpur', 'darbhanga', 'purnia', 'rohtas', 'begusarai'];
-  for (const dist of biharDistricts) {
-    if (lower.includes(dist)) {
-      profile.location.district = dist.charAt(0).toUpperCase() + dist.slice(1);
-      profile.tags.push(`जिला: ${profile.location.district} (बिहार)`);
-      break;
-    }
+  // Location
+  if (/shahar|city|urban/i.test(lower)) {
+    profile.location_type = 'urban';
+    profile.tags.push('क्षेत्र: शहरी (Urban)');
+  } else if (/gaon|gramin|rural/i.test(lower)) {
+    profile.location_type = 'rural';
+    profile.tags.push('क्षेत्र: ग्रामीण (Rural)');
   }
 
   return profile;
 }
 
 // POST /api/ai/match
-router.post('/match', async (req, res) => {
+router.post('/match', (req, res) => {
   try {
-    const { transcript, apiKey } = req.body;
+    const { transcript } = req.body;
     if (!transcript) {
       return res.status(400).json({ success: false, message: 'Voice transcript is required' });
     }
@@ -117,69 +156,99 @@ router.post('/match', async (req, res) => {
     const matches = [];
 
     for (const scheme of schemesData) {
+      const crit = scheme.eligibility;
+      if (!crit) continue;
+
+      let isDisqualified = false;
       let score = 0;
       const reasons = [];
 
-      if (scheme.id === 'pm-kisan' && (profile.occupation === 'farmer' || profile.hasLand || /kisan|farmer|kheti|zameen|jameen|bigha|katha|krishi/i.test(lower))) {
-        score = 95;
-        reasons.push('आप एक भूमिधारक किसान हैं');
-      } else if (scheme.id === 'ayushman-bharat' && (profile.healthNeed || profile.hasRationCard || /hospital|aspatal|ilaaj|ilaj|bimari|dawa|ration|garib|daktar/i.test(lower))) {
-        score = 92;
-        reasons.push('राशन कार्ड धारक व अस्पताल में ₹5 लाख तक मुफ्त इलाज');
-      } else if (scheme.id === 'kanya-utthan' && (profile.gender === 'female' || /ladki|beti|12th|inter|graduation|guriya|bachi/i.test(lower))) {
-        score = 95;
-        reasons.push('बिहार की छात्रा (इंटर / स्नातक प्रोत्साहन)');
-      } else if (scheme.id === 'udyami-yojana' && (profile.businessIntent || /business|dukan|dukani|startup|rojgar|karobar|karkhana/i.test(lower))) {
-        score = 90;
-        reasons.push('बिहार में नया उद्योग/दुकान शुरू करने हेतु ₹10 लाख सहायता (50% सब्सिडी)');
-      } else if (scheme.id === 'pm-awas-gramin' && (profile.housingType === 'kutcha' || /kaccha|kacha|ghar|makan|chhat|jhopdi|jhopra/i.test(lower))) {
-        score = 95;
-        reasons.push('पक्का मकान नहीं है (ग्रामीण आवास सहायता)');
-      } else if (scheme.id === 'vridhavastha-pension' && (profile.age >= 60 || /pension|bujurg|vridha|60 saal|64 saal|dada|dadi|baba|buddha/i.test(lower))) {
-        score = 98;
-        reasons.push('उम्र 60 वर्ष या अधिक है (आजीवन मासिक वृद्धावस्था पेंशन)');
-      } else if (scheme.id === 'nsp-scholarship' && (profile.isStudent || /student|padhai|scholarship|chhatravritti|college|school/i.test(lower))) {
-        score = 88;
-        reasons.push('अध्ययनरत विद्यार्थी (राष्ट्रीय छात्रवृत्ति)');
-      } else if (scheme.id === 'pm-fasal-bima' && (profile.cropDamage || /fasal|nuksan|baadh|sukha|pani me dub/i.test(lower))) {
-        score = 92;
-        reasons.push('फसल बर्बादी पर सरकारी सहायता व मुआवजा');
-      } else if (scheme.id === 'student-credit-card' && /12th|college|btech|loan|polytechnic/i.test(lower)) {
-        score = 85;
-        reasons.push('उच्च शिक्षा हेतु ₹4 लाख तक शिक्षा ऋण');
-      } else if (scheme.id === 'kushal-yuva-program' && /computer|skill|english|kyp|seekhna/i.test(lower)) {
-        score = 82;
-        reasons.push('मुफ्त 240 घंटे कंप्यूटर व संवाद प्रशिक्षण');
+      // 1. Disability check
+      if (crit.disability_required === true) {
+        if (profile.disability_status === true || /divyang|viklang/i.test(lower)) {
+          score += 50;
+          reasons.push('दिव्यांगता श्रेणी (Disability Support) के तहत पात्र');
+        } else {
+          isDisqualified = true;
+        }
       }
+      if (isDisqualified) continue;
 
-      if (score >= 60) {
+      // 2. Gender check
+      if (crit.gender && crit.gender !== 'any') {
+        if (profile.gender === crit.gender) {
+          score += 35;
+          reasons.push('महिला/बालिका विशेष योजना');
+        } else if (profile.gender === 'male' && crit.gender === 'female') {
+          isDisqualified = true;
+        }
+      }
+      if (isDisqualified) continue;
+
+      // 3. Marital status check
+      if (crit.marital_status && crit.marital_status !== 'any') {
+        if (crit.marital_status === 'widow') {
+          if (profile.marital_status === 'widow' || /vidhwa|widow/i.test(lower)) {
+            score += 45;
+            reasons.push('विधवा सामाजिक सुरक्षा पेंशन हेतु पूर्ण पात्र');
+          } else {
+            isDisqualified = true;
+          }
+        }
+      }
+      if (isDisqualified) continue;
+
+      // 4. Age check
+      if (profile.age !== null) {
+        if (crit.min_age !== null && profile.age < crit.min_age) isDisqualified = true;
+        if (crit.max_age !== null && profile.age > crit.max_age) isDisqualified = true;
+        if (!isDisqualified) {
+          if (crit.min_age >= 60) score += 45;
+          else score += 15;
+        }
+      } else {
+        if (crit.min_age >= 60 && !/pension|bujurg|vridha|buddha/i.test(lower)) isDisqualified = true;
+      }
+      if (isDisqualified) continue;
+
+      // 5. Occupation check
+      if (crit.occupations && !crit.occupations.includes('any')) {
+        const matchesOcc = crit.occupations.some(o => o === profile.occupation || lower.includes(o));
+        if (matchesOcc) {
+          score += 40;
+          reasons.push(`पेशा आधारित पात्रता (${profile.occupation})`);
+        } else {
+          if (scheme.id === 'pm-kisan' && (profile.occupation === 'student' || profile.occupation === 'shopkeeper')) isDisqualified = true;
+          if (scheme.id === 'student-credit-card' && (profile.occupation === 'elderly' || profile.occupation === 'farmer')) isDisqualified = true;
+        }
+      } else {
+        score += 15;
+      }
+      if (isDisqualified) continue;
+
+      // 6. Land check
+      if (crit.land_required === true && !profile.has_land && !/zameen|land|bigha/i.test(lower)) {
+        isDisqualified = true;
+      }
+      if (isDisqualified) continue;
+
+      // 7. Need specific boosts
+      if (scheme.id === 'ayushman-bharat' && (profile.needs.includes('health_treatment') || profile.has_ration_card)) score += 35;
+      if (scheme.id === 'pm-awas-gramin' && profile.has_pucca_house === false) score += 40;
+      if (scheme.id === 'pm-mudra-yojana' && profile.occupation === 'shopkeeper') score += 40;
+      if (scheme.id === 'kanya-utthan' && profile.gender === 'female' && (profile.education_level === '12th_pass' || profile.education_level === 'graduate')) score += 45;
+
+      const finalScore = Math.min(Math.round(score), 100);
+      if (finalScore >= 35) {
         matches.push({
           ...scheme,
-          matchScore: score,
-          reasons: reasons.length > 0 ? reasons : ['आप इस योजना के बुनियादी मापदंड पूरे करते हैं']
+          matchScore: finalScore,
+          reasons: reasons.length > 0 ? reasons : [scheme.whoQualifies]
         });
       }
     }
 
     matches.sort((a, b) => b.matchScore - a.matchScore);
-
-    // Smart Fallback if no specific keyword triggered
-    if (matches.length === 0) {
-      const topDefaults = ['pm-kisan', 'ayushman-bharat', 'pm-awas-gramin', 'kanya-utthan'];
-      for (const id of topDefaults) {
-        const found = schemesData.find(s => s.id === id);
-        if (found) {
-          matches.push({
-            ...found,
-            matchScore: 80,
-            reasons: ['बिहार के नागरिकों के लिए सर्वाधिक लाभकारी योजना']
-          });
-        }
-      }
-      if (profile.tags.length === 0) {
-        profile.tags.push('नागरिक सहायता (General Assistance)');
-      }
-    }
 
     res.json({
       success: true,
