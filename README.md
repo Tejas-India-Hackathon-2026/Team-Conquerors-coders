@@ -187,6 +187,4 @@ Scheme Details
 ↓
 Voice / Visual Response
 
-### Core Components
-
-- **Voice Interface** — Captures user
+### Core
