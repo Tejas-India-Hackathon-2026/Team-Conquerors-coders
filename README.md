@@ -182,7 +182,3 @@ Yojana Sathi aims to simplify this process through a voice-first, AI-powered exp
 - Help users understand eligibility requirements.
 - Support users who are more comfortable with voice interaction.
 - Connect citizens with assistance points such as Common Service Centres.
-
-### Our Vision
-
-To build an accessible digital companion that helps every citizen discover the government benefits and opportunities they may be eligible for.
