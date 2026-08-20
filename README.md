@@ -195,7 +195,7 @@ Voice / Visual Response
 - **Scheme Data Layer** — Provides government scheme information.
 - **Eligibility Engine** — Evaluates whether schemes match user requirements.
 - **Scheme Directory** — Allows users to explore available schemes.
-- **Scheme Details** —
+-
 -
 
 -
