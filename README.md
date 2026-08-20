@@ -177,5 +177,4 @@ Voice / Text Input
 ↓
 Speech Recognition & Input Processing
 ↓
-AI Matching Engine
-↓
+AI
