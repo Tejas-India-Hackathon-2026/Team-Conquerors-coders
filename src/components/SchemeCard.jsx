@@ -20,7 +20,8 @@ import {
   CreditCard,
   Laptop,
   Bookmark,
-  Star
+  Star,
+  ArrowRight
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -48,17 +49,20 @@ export default function SchemeCard({
   const IconComponent = ICON_MAP[scheme.icon] || Sparkles;
 
   return (
-    <div className="bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-3xl p-5 sm:p-7 transition-all duration-200 shadow-xl flex flex-col justify-between group hover:shadow-2xl hover:shadow-orange-500/5 relative">
+    <div className="bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-950/90 backdrop-blur-xl border border-slate-800/90 hover:border-orange-500/40 rounded-3xl p-6 sm:p-7 transition-all duration-300 shadow-xl flex flex-col justify-between group glass-card-hover relative overflow-hidden">
       
-      {/* Top Meta: Category + Match Badge + Audio TTS button + Bookmark Button */}
+      {/* Top Ambient Glow */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-orange-500/10 transition-all" />
+
+      {/* Top Meta: Category + Level Badge + Bookmark + Audio Button */}
       <div>
         <div className="flex items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${scheme.badgeColor || 'bg-slate-800 text-slate-300 border-slate-700'}`}>
+            <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full border shadow-sm ${scheme.badgeColor || 'bg-slate-800 text-slate-300 border-slate-700'}`}>
               {scheme.categoryLabel}
             </span>
-            <span className="text-[10px] font-semibold text-slate-400 bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800">
-              {scheme.level}
+            <span className="text-[10px] font-bold text-slate-400 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-slate-800/80">
+              {scheme.level === 'state' ? '🏛️ बिहार सरकार' : '🇮🇳 केंद्र सरकार'}
             </span>
           </div>
 
@@ -73,8 +77,8 @@ export default function SchemeCard({
                 title={isSaved ? 'सेव सूची से हटाएं' : 'पसंदीदा में सेव करें'}
                 className={`p-2 rounded-xl text-xs transition-all border ${
                   isSaved
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm'
-                    : 'bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-amber-300 border-slate-800'
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm scale-105'
+                    : 'bg-slate-950/80 hover:bg-slate-850 text-slate-400 hover:text-amber-300 border-slate-800'
                 }`}
               >
                 <Star className={`w-3.5 h-3.5 ${isSaved ? 'fill-amber-400 text-amber-400' : ''}`} />
@@ -91,10 +95,10 @@ export default function SchemeCard({
                 }
               }}
               aria-label="Listen Hindi Audio"
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 shadow-sm ${
                 isPlayingAudio
-                  ? 'bg-orange-500 text-white animate-pulse shadow-orange-500/30'
-                  : 'bg-slate-800 hover:bg-slate-700 text-orange-400 border border-slate-700'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white animate-pulse shadow-orange-500/30'
+                  : 'bg-slate-950/80 hover:bg-slate-800 text-orange-400 border border-slate-800 hover:border-orange-500/30'
               }`}
             >
               {isPlayingAudio ? (
@@ -105,7 +109,7 @@ export default function SchemeCard({
               ) : (
                 <>
                   <Volume2 className="w-3.5 h-3.5" />
-                  <span>सुनिये (Audio)</span>
+                  <span>सुनिये</span>
                 </>
               )}
             </button>
@@ -113,12 +117,12 @@ export default function SchemeCard({
         </div>
 
         {/* Scheme Title & Icon */}
-        <div className="flex items-start gap-3.5 mb-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        <div className="flex items-start gap-3.5 mb-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:border-orange-500/50 transition-all shadow-md">
             <IconComponent className="w-6 h-6 text-orange-400" />
           </div>
           <div>
-            <h3 className="text-lg sm:text-xl font-extrabold text-white group-hover:text-orange-300 transition-colors leading-snug">
+            <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-orange-300 transition-colors leading-snug">
               {scheme.hindiName}
             </h3>
             <p className="text-xs font-semibold text-slate-400 mt-0.5">
@@ -128,18 +132,21 @@ export default function SchemeCard({
         </div>
 
         {/* Tagline */}
-        <p className="text-xs text-slate-300 line-clamp-2 mb-4 leading-relaxed">
+        <p className="text-xs text-slate-300 line-clamp-2 mb-4 leading-relaxed font-medium">
           {scheme.tagline}
         </p>
 
-        {/* Benefit Highlight Box */}
-        <div className="p-3.5 bg-slate-950/70 border border-slate-800/80 rounded-2xl mb-4">
+        {/* Total Benefit Highlight Box (Metallic Glow) */}
+        <div className="p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-800/90 rounded-2xl mb-4 group-hover:border-orange-500/30 transition-all shadow-inner">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
             सरकारी लाभ (Total Benefit):
           </span>
-          <div className="text-base sm:text-lg font-black bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-transparent">
+          <div className="text-lg sm:text-xl font-black bg-gradient-to-r from-amber-200 via-orange-400 to-amber-300 bg-clip-text text-transparent">
             {scheme.benefit}
           </div>
+          <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
+            {scheme.benefitDetail}
+          </p>
         </div>
 
         {/* Who Qualifies Section */}
@@ -156,26 +163,27 @@ export default function SchemeCard({
         {scheme.reasons && scheme.reasons.length > 0 && (
           <div className="mb-4 p-2.5 bg-orange-500/10 border border-orange-500/20 rounded-xl text-xs text-orange-300 flex items-start gap-2">
             <Award className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
-            <span className="leading-snug">{scheme.reasons[0]}</span>
+            <span className="leading-snug font-medium">{scheme.reasons[0]}</span>
           </div>
         )}
       </div>
 
       {/* Action Buttons */}
-      <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2">
+      <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2.5">
         <button
           onClick={() => onOpenDetails(scheme)}
-          className="flex-1 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-slate-700 hover:border-slate-600 shadow"
+          className="flex-1 py-3 px-4 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-100 font-extrabold text-xs flex items-center justify-center gap-2 transition-all border border-slate-700/80 hover:border-slate-600 shadow-md group-hover:bg-gradient-to-r group-hover:from-orange-500/20 group-hover:to-amber-500/20"
         >
           <FileText className="w-4 h-4 text-orange-400" />
           <span>पूरी जानकारी व कागज</span>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
         </button>
 
         <a
           href={scheme.officialLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-2.5 rounded-xl bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white transition-all border border-orange-500/30"
+          className="p-3 rounded-2xl bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white transition-all border border-orange-500/30 shadow-sm"
           title="सरकारी पोर्टल पर जाएं"
         >
           <ExternalLink className="w-4 h-4" />

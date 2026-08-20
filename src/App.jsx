@@ -268,7 +268,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#070b14] text-slate-100 font-sans selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#060911] text-slate-100 font-sans selection:bg-orange-500 selection:text-white relative">
+      
+      {/* Ambient Lighting Mesh Glow */}
+      <div className="ambient-bg-glow" />
       
       {/* Navigation */}
       <Navbar
