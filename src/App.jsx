@@ -70,6 +70,11 @@ export default function App() {
   const [playingAudioId, setPlayingAudioId] = useState(null);
 
   const resultsRef = useRef(null);
+  const latestTranscriptRef = useRef('');
+
+  useEffect(() => {
+    latestTranscriptRef.current = transcript;
+  }, [transcript]);
 
   // Initialize Speech Recognizer callbacks
   useEffect(() => {
@@ -96,26 +101,47 @@ export default function App() {
     };
   }, []);
 
-  // Handle Starting Speech
+  // Handle Starting Speech — FRESH START (Clears old accumulated text)
   const handleStartListening = () => {
     speechSynthesizer.stop();
     setPlayingAudioId(null);
+    setTranscript(''); // Clear previous text!
+    latestTranscriptRef.current = '';
+    speechRecognizer.reset(); // Reset buffer!
+
     speechRecognizer.start({
       lang: selectedLanguage,
-      initialText: transcript,
+      resetFresh: true,
       onResult: ({ combined }) => {
         setTranscript(combined);
       },
       onStart: () => setIsListening(true),
-      onEnd: () => setIsListening(false),
+      onEnd: () => {
+        setIsListening(false);
+        // If user stopped mic and spoke something, automatically search!
+        if (latestTranscriptRef.current && latestTranscriptRef.current.trim().length >= 4) {
+          handleAnalyze(latestTranscriptRef.current);
+        }
+      },
+      onSilenceAutoSearch: (silenceText) => {
+        // Auto search on 2 seconds of silence!
+        if (silenceText && silenceText.trim().length >= 4) {
+          speechRecognizer.stop();
+          setIsListening(false);
+          handleAnalyze(silenceText);
+        }
+      },
       onError: () => setIsListening(false)
     });
   };
 
-  // Handle Stopping Speech
+  // Handle Stopping Speech — Auto Trigger Search!
   const handleStopListening = () => {
     speechRecognizer.stop();
     setIsListening(false);
+    if (transcript && transcript.trim().length >= 3) {
+      handleAnalyze(transcript);
+    }
   };
 
   // Run AI Matching with Auto Voice Readout

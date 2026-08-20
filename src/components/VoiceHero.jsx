@@ -10,7 +10,8 @@ import {
   CheckCircle2, 
   ChevronRight,
   Headphones,
-  Info
+  Info,
+  Zap
 } from 'lucide-react';
 import AudioVisualizer from './AudioVisualizer';
 import { DEMO_PERSONAS } from '../data/personas';
@@ -33,7 +34,6 @@ export default function VoiceHero({
   const handleSelectPersona = (persona) => {
     setActivePersonaId(persona.id);
     setTranscript(persona.transcript);
-    // Speak what was selected so illiterate citizens can hear it
     speechSynthesizer.speak(persona.transcript, {
       id: `persona-${persona.id}`,
       onStart: () => {},
@@ -41,7 +41,6 @@ export default function VoiceHero({
         onAnalyze(persona.transcript);
       }
     });
-    // Trigger analyze right away
     onAnalyze(persona.transcript);
   };
 
@@ -52,6 +51,7 @@ export default function VoiceHero({
       onStopListening();
     } else {
       setActivePersonaId(null);
+      // Starts fresh and clears old text
       onStartListening();
     }
   };
@@ -105,7 +105,7 @@ export default function VoiceHero({
       </h1>
 
       <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed">
-        लिखना या पढ़ना नहीं आता? कोई बात नहीं! बस नीचे बने माइक को दबाएं और अपनी भाषा में बोलें।
+        लिखना या पढ़ना नहीं आता? कोई बात नहीं! बस नीचे बने माइक को दबाएं और अपनी भाषा में बोलें — <strong>AI अपने आप योजनाएं खोज देगा।</strong>
       </p>
 
       {/* Large Voice Mic Button Section */}
@@ -146,7 +146,7 @@ export default function VoiceHero({
             aria-label="Voice Input Button"
             className={`relative z-10 w-32 h-32 sm:w-40 sm:h-40 rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl ${
               isListening
-                ? 'bg-gradient-to-tr from-orange-600 via-amber-500 to-emerald-500 mic-glow-active scale-105'
+                ? 'bg-gradient-to-tr from-orange-600 via-amber-500 to-emerald-500 mic-glow-active scale-105 ring-4 ring-emerald-400/40'
                 : 'bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 hover:from-orange-600/40 hover:to-slate-800 border-4 border-orange-500/50 hover:border-orange-500 group hover:scale-105'
             }`}
           >
@@ -154,7 +154,7 @@ export default function VoiceHero({
               <>
                 <Mic className="w-12 h-12 sm:w-14 sm:h-14 text-white animate-bounce" />
                 <span className="text-xs sm:text-sm font-extrabold text-white mt-1 uppercase tracking-wider">
-                  रोकें (Tap to Stop)
+                  रोकें / खोजें (Stop & Search)
                 </span>
               </>
             ) : (
@@ -173,8 +173,8 @@ export default function VoiceHero({
           {isListening ? (
             <div className="flex flex-col items-center">
               <AudioVisualizer isActive={isListening} />
-              <p className="text-xs text-orange-400 font-bold animate-pulse mt-1">
-                🎙️ आपकी आवाज़ सुनी जा रही है... खुलकर बोलते रहें!
+              <p className="text-xs text-emerald-400 font-bold animate-pulse mt-1 flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5" /> आपकी आवाज़ सुनी जा रही है... बोलते ही अपने आप खोज हो जाएगी!
               </p>
             </div>
           ) : (
@@ -199,9 +199,9 @@ export default function VoiceHero({
           {transcript && (
             <button
               onClick={handleClear}
-              className="text-xs text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-1"
+              className="text-xs text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-1 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700 hover:border-rose-500/50"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> साफ करें
+              <RefreshCw className="w-3.5 h-3.5" /> नया बोलें (Clear / Reset)
             </button>
           )}
         </div>
@@ -210,7 +210,7 @@ export default function VoiceHero({
         <textarea
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
-          placeholder="माइक दबाकर बोलें (उदा: 'मैं जमुई से किसान हूँ, 2 बीघा जमीन है' या 'मेरी उम्र 64 साल है, पेंशन चाहिए')..."
+          placeholder="माइक दबाकर बोलें... (बोलते ही 2 सेकंड में योजनाएं अपने आप खुल जाएंगी)"
           rows={3}
           className="w-full bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5 text-sm sm:text-base text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all resize-none"
         />
@@ -219,7 +219,7 @@ export default function VoiceHero({
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-400 flex items-center gap-1.5">
             <Info className="w-4 h-4 text-orange-400 shrink-0" />
-            हिंदी, भोजपुरी, मगही, मैथिली या इंग्लिश — सभी भाषाएं समझता है
+            हिंदी, भोजपुरी, मगही, मैथिली — बोलते ही <strong>Auto-Search (स्वतः खोज)</strong> शुरू हो जाती है!
           </p>
 
           <button
@@ -248,11 +248,9 @@ export default function VoiceHero({
       <div className="max-w-4xl mx-auto text-left">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-wider font-bold text-orange-400 flex items-center gap-1">
-              ✨ बोलना नहीं चाहते? बस अपना चित्र कार्ड चुनें:
-            </span>
+            <span className="text-sm font-bold text-amber-400">✨ बोलना नहीं चाहते? बस अपना चित्र कार्ड चुनें:</span>
           </div>
-          <span className="text-[11px] text-slate-400 hidden sm:inline">1-Tap Voice Audio</span>
+          <span className="text-[11px] text-slate-400 font-semibold hidden sm:inline">1-Tap Voice Audio</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -262,23 +260,26 @@ export default function VoiceHero({
               <button
                 key={persona.id}
                 onClick={() => handleSelectPersona(persona)}
-                className={`p-3.5 rounded-2xl text-left border-2 transition-all flex flex-col justify-between group shadow-md hover:scale-105 ${
+                className={`p-3.5 rounded-2xl border transition-all text-left flex flex-col justify-between group relative overflow-hidden ${
                   isSelected
-                    ? 'bg-gradient-to-br from-orange-500/20 to-amber-500/10 border-orange-500 text-white shadow-orange-500/20'
-                    : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 text-slate-300'
+                    ? 'bg-orange-500/20 border-orange-500 shadow-lg shadow-orange-500/10'
+                    : 'bg-slate-900/60 hover:bg-slate-850 border-slate-800 hover:border-slate-700'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-3xl">{persona.icon}</span>
-                  <Volume2 className="w-4 h-4 text-orange-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-2xl sm:text-3xl">{persona.avatar}</span>
+                  <div className="w-6 h-6 rounded-full bg-slate-800 group-hover:bg-orange-500 group-hover:text-white text-slate-400 flex items-center justify-center transition-colors">
+                    <Volume2 className="w-3.5 h-3.5" />
+                  </div>
                 </div>
+
                 <div>
-                  <h4 className="font-extrabold text-xs sm:text-sm text-white leading-tight">
-                    {persona.role}
-                  </h4>
-                  <p className="text-[10px] text-slate-400 mt-1 line-clamp-2">
-                    {persona.transcript}
-                  </p>
+                  <div className="text-xs font-bold text-slate-200 group-hover:text-orange-400 transition-colors">
+                    {persona.nameHindi}
+                  </div>
+                  <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">
+                    {persona.tagline}
+                  </div>
                 </div>
               </button>
             );

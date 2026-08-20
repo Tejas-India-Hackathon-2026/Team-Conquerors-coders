@@ -1,20 +1,21 @@
 /**
  * Web Speech API Voice Recognition Service
- * Robust, resilient speech-to-text with auto-restart on silence,
- * full transcript accumulation (never drops words), and Hindi/Bhojpuri/Maithili dialect normalization.
+ * Robust, resilient speech-to-text with auto-restart on speech pauses,
+ * clean fresh start per session, and Hindi/Bhojpuri/Maithili dialect normalization.
  */
 
 export class SpeechRecognitionService {
   constructor() {
     this.recognition = null;
     this.isListening = false;
-    this.language = 'hi-IN'; // Default to Hindi
+    this.language = 'hi-IN';
     this.accumulatedTranscript = '';
     this.interimTranscript = '';
     this.onResultCallback = null;
     this.onErrorCallback = null;
     this.onStartCallback = null;
     this.onEndCallback = null;
+    this.onSilenceAutoSearchCallback = null;
     this.silenceTimer = null;
     this.init();
   }
@@ -45,7 +46,6 @@ export class SpeechRecognitionService {
       let finalSegment = '';
       let currentInterim = '';
 
-      // Loop through all results from the beginning of current recognition session
       for (let i = 0; i < event.results.length; ++i) {
         const item = event.results[i];
         if (item.isFinal) {
@@ -57,7 +57,6 @@ export class SpeechRecognitionService {
 
       this.interimTranscript = currentInterim;
       
-      // Combine permanently accumulated text with current session final text and interim
       const fullText = (this.accumulatedTranscript + ' ' + finalSegment + ' ' + currentInterim)
         .replace(/\s+/g, ' ')
         .trim();
@@ -69,14 +68,25 @@ export class SpeechRecognitionService {
           combined: fullText
         });
       }
+
+      // Reset Silence Timer for Auto Search
+      if (this.silenceTimer) {
+        clearTimeout(this.silenceTimer);
+      }
+
+      // If user has spoken at least 5 characters, set auto-search timer on 2.0s of silence
+      if (fullText.length >= 6) {
+        this.silenceTimer = setTimeout(() => {
+          if (this.isListening && this.onSilenceAutoSearchCallback) {
+            this.onSilenceAutoSearchCallback(fullText);
+          }
+        }, 2000);
+      }
     };
 
     this.recognition.onerror = (event) => {
-      console.warn('Speech recognition status/error:', event.error);
-      if (event.error === 'no-speech') {
-        // If no speech detected yet keep listening if user hasn't explicitly stopped
-        return;
-      }
+      console.warn('Speech recognition error:', event.error);
+      if (event.error === 'no-speech') return;
       if (event.error === 'not-allowed') {
         this.isListening = false;
         if (this.onErrorCallback) this.onErrorCallback('MIC_PERMISSION_DENIED');
@@ -84,17 +94,14 @@ export class SpeechRecognitionService {
     };
 
     this.recognition.onend = () => {
-      // If user is still supposed to be listening (e.g. pause between words), auto-restart!
       if (this.isListening) {
         try {
-          // Commit current final segment into accumulated
           if (this.interimTranscript) {
             this.accumulatedTranscript = (this.accumulatedTranscript + ' ' + this.interimTranscript).trim();
             this.interimTranscript = '';
           }
           this.recognition.start();
         } catch (e) {
-          // Restart failed, gracefully set listening false
           this.isListening = false;
           if (this.onEndCallback) this.onEndCallback();
         }
@@ -104,58 +111,61 @@ export class SpeechRecognitionService {
     };
   }
 
-  setLanguage(lang = 'hi-IN') {
-    this.language = lang;
+  setLanguage(langCode) {
+    this.language = langCode;
     if (this.recognition) {
-      this.recognition.lang = lang;
+      this.recognition.lang = langCode;
     }
   }
 
-  start({ onResult, onError, onStart, onEnd, lang = 'hi-IN', initialText = '' } = {}) {
-    if (!this.isSupported()) {
-      if (onError) onError('NOT_SUPPORTED');
+  start({ lang, onResult, onStart, onEnd, onError, onSilenceAutoSearch, resetFresh = true } = {}) {
+    if (!this.recognition) this.init();
+    if (!this.recognition) {
+      if (onError) onError('SPEECH_API_NOT_SUPPORTED');
       return;
     }
 
-    this.onResultCallback = onResult;
-    this.onErrorCallback = onError;
-    this.onStartCallback = onStart;
-    this.onEndCallback = onEnd;
-    this.setLanguage(lang);
-    this.accumulatedTranscript = initialText || '';
-    this.interimTranscript = '';
-    this.isListening = true;
+    if (lang) {
+      this.setLanguage(lang);
+    }
+
+    if (resetFresh) {
+      this.accumulatedTranscript = '';
+      this.interimTranscript = '';
+    }
+
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer);
+    }
+
+    this.onResultCallback = onResult || null;
+    this.onStartCallback = onStart || null;
+    this.onEndCallback = onEnd || null;
+    this.onErrorCallback = onError || null;
+    this.onSilenceAutoSearchCallback = onSilenceAutoSearch || null;
 
     try {
+      this.isListening = true;
       this.recognition.start();
-    } catch (err) {
-      // If already started, stop and restart cleanly
-      try {
-        this.recognition.stop();
-      } catch (e) {}
-      setTimeout(() => {
-        try {
-          this.isListening = true;
-          this.recognition.start();
-        } catch (e) {
-          console.error('Speech start retry failed:', e);
-        }
-      }, 150);
+    } catch (e) {
+      console.warn('Recognition start caught error:', e);
     }
   }
 
   stop() {
     this.isListening = false;
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer);
+    }
     if (this.recognition) {
       try {
         this.recognition.stop();
-      } catch (err) {
-        console.warn(err);
-      }
+      } catch (e) {}
     }
   }
 
-  clear() {
+  reset() {
+    this.stop();
     this.accumulatedTranscript = '';
     this.interimTranscript = '';
   }
