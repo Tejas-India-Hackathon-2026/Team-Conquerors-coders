@@ -164,10 +164,10 @@ User
 → Eligibility Check
 → Scheme Details
 → Action / Assistance
+v
 
 ## 🌍 Impact & Vision
 
 ### The Problem
 
-Many citizens are unaware of government schemes that could benefit them. Finding the right scheme, understanding eligibility, and knowing where to get assistance can be difficult because information is often scattered across different sources.
-
+Many citizens are unaware of government schemes that could benefit
