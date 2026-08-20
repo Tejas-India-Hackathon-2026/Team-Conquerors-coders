@@ -197,5 +197,5 @@ Voice / Visual Response
 - **Scheme Directory** — Allows users to explore available schemes.
 - **Scheme Details** — Displays detailed information about selected schemes.
 - **CSC Locator** — Helps users find nearby Common Service Centres.
-- **Analytics Module** — Tracks
+- **Analytics Module** —
 -
