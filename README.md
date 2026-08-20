@@ -171,6 +171,3 @@ User
 
 Many citizens are unaware of government schemes that could benefit them. Finding the right scheme, understanding eligibility, and knowing where to get assistance can be difficult because information is often scattered across different sources.
 
-### Our Solution
-
-Yojana Sathi aims to simplify this process through a voice-first, AI-powered experience that helps citizens discover relevant government schemes using simple language.
