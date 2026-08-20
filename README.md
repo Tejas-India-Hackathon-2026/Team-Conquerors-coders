@@ -194,4 +194,3 @@ Voice / Visual Response
 - **AI Matching Engine** — Processes user information and matches relevant schemes.
 - **Scheme Data Layer** — Provides government scheme information.
 - **Eligibility Engine** — Evaluates whether schemes match user requirements.
-- **Scheme Directory** —
