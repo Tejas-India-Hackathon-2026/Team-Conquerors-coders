@@ -186,5 +186,3 @@ Eligibility & Recommendation
 Scheme Details
 ↓
 Voice / Visual Response
-
-### Core
