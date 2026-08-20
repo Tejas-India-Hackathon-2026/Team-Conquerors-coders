@@ -164,3 +164,25 @@ User
 → Eligibility Check
 → Scheme Details
 → Action / Assistance
+
+## 🌍 Impact & Vision
+
+### The Problem
+
+Many citizens are unaware of government schemes that could benefit them. Finding the right scheme, understanding eligibility, and knowing where to get assistance can be difficult because information is often scattered across different sources.
+
+### Our Solution
+
+Yojana Sathi aims to simplify this process through a voice-first, AI-powered experience that helps citizens discover relevant government schemes using simple language.
+
+### Expected Impact
+
+- Make government scheme information easier to access.
+- Reduce the difficulty of finding relevant schemes.
+- Help users understand eligibility requirements.
+- Support users who are more comfortable with voice interaction.
+- Connect citizens with assistance points such as Common Service Centres.
+
+### Our Vision
+
+To build an accessible digital companion that helps every citizen discover the government benefits and opportunities they may be eligible for.
