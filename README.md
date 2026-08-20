@@ -183,6 +183,3 @@ Government Scheme Data
 ↓
 Eligibility & Recommendation
 ↓
-Scheme Details
-↓
-
