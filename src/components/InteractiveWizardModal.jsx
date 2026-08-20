@@ -36,7 +36,6 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
     if (step < 5) {
       setStep(step + 1);
     } else {
-      // Build transcript synthesis string
       let synthesized = "";
       if (wizardData.gender === 'female') synthesized += "महिला ";
       else synthesized += "पुरुष ";
@@ -61,26 +60,26 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl my-8 text-left max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-2xl my-8 text-left max-h-[92vh] overflow-y-auto">
         
-        {/* Close */}
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
         <div className="flex items-center gap-2 mb-2">
-          <span className="px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4" />
+          <span className="px-3 py-1 rounded-full bg-orange-100 border border-orange-300 text-orange-900 text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-orange-600" />
             <span>myScheme 5-Step Smart Finder (योजना खोजक)</span>
           </span>
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900">
           5 आसान सवालों में अपनी सभी सरकारी योजनाएं खोजें
         </h2>
         
@@ -90,7 +89,7 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
             <div
               key={i}
               className={`h-2 flex-1 rounded-full transition-all ${
-                i === step ? 'bg-orange-500' : i < step ? 'bg-emerald-500' : 'bg-slate-800'
+                i === step ? 'bg-orange-500' : i < step ? 'bg-emerald-500' : 'bg-slate-200'
               }`}
             />
           ))}
@@ -99,7 +98,7 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
         {/* STEP 1: Gender & Age */}
         {step === 1 && (
           <div className="space-y-4 my-6">
-            <h3 className="text-sm font-bold text-slate-200">1. आपका लिंग और उम्र क्या है?</h3>
+            <h3 className="text-sm font-bold text-slate-800">1. आपका लिंग और उम्र क्या है?</h3>
             
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -107,8 +106,8 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                 onClick={() => handleSelect('gender', 'female')}
                 className={`p-4 rounded-2xl border text-center font-bold text-sm transition-all ${
                   wizardData.gender === 'female'
-                    ? 'bg-pink-500/20 border-pink-500 text-pink-300'
-                    : 'bg-slate-950 border-slate-800 text-slate-400'
+                    ? 'bg-rose-50 border-rose-500 text-rose-900 ring-2 ring-rose-300'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 <span className="text-2xl block mb-1">👩</span>
@@ -120,8 +119,8 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                 onClick={() => handleSelect('gender', 'male')}
                 className={`p-4 rounded-2xl border text-center font-bold text-sm transition-all ${
                   wizardData.gender === 'male'
-                    ? 'bg-blue-500/20 border-blue-500 text-blue-300'
-                    : 'bg-slate-950 border-slate-800 text-slate-400'
+                    ? 'bg-blue-50 border-blue-500 text-blue-900 ring-2 ring-blue-300'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 <span className="text-2xl block mb-1">👨</span>
@@ -130,7 +129,7 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">अपनी आयु (उम्र) चुनें: <strong className="text-orange-400">{wizardData.age} वर्ष</strong></label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">अपनी आयु (उम्र) चुनें: <strong className="text-orange-600 font-bold">{wizardData.age} वर्ष</strong></label>
               <input
                 type="range"
                 min="5"
@@ -139,7 +138,7 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                 onChange={(e) => handleSelect('age', parseInt(e.target.value, 10))}
                 className="w-full accent-orange-500"
               />
-              <div className="flex justify-between text-[10px] text-slate-500">
+              <div className="flex justify-between text-[10px] text-slate-400 font-semibold">
                 <span>5 वर्ष</span>
                 <span>25 वर्ष</span>
                 <span>50 वर्ष</span>
@@ -149,10 +148,10 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
           </div>
         )}
 
-        {/* STEP 2: Location (Rural / Urban) */}
+        {/* STEP 2: Location */}
         {step === 2 && (
           <div className="space-y-4 my-6">
-            <h3 className="text-sm font-bold text-slate-200">2. आप कहाँ रहते हैं?</h3>
+            <h3 className="text-sm font-bold text-slate-800">2. आप कहाँ रहते हैं?</h3>
             
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -160,8 +159,8 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                 onClick={() => handleSelect('location', 'rural')}
                 className={`p-5 rounded-2xl border text-center font-bold text-sm transition-all ${
                   wizardData.location === 'rural'
-                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
-                    : 'bg-slate-950 border-slate-800 text-slate-400'
+                    ? 'bg-emerald-50 border-emerald-500 text-emerald-900 ring-2 ring-emerald-300'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 <span className="text-3xl block mb-1">🌾</span>
@@ -173,8 +172,8 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                 onClick={() => handleSelect('location', 'urban')}
                 className={`p-5 rounded-2xl border text-center font-bold text-sm transition-all ${
                   wizardData.location === 'urban'
-                    ? 'bg-blue-500/20 border-blue-500 text-blue-300'
-                    : 'bg-slate-950 border-slate-800 text-slate-400'
+                    ? 'bg-blue-50 border-blue-500 text-blue-900 ring-2 ring-blue-300'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 <span className="text-3xl block mb-1">🏢</span>
@@ -184,10 +183,10 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
           </div>
         )}
 
-        {/* STEP 3: Social Category & Disability */}
+        {/* STEP 3: Social Category */}
         {step === 3 && (
           <div className="space-y-4 my-6">
-            <h3 className="text-sm font-bold text-slate-200">3. आपका सामाजिक वर्ग क्या है?</h3>
+            <h3 className="text-sm font-bold text-slate-800">3. आपका सामाजिक वर्ग क्या है?</h3>
             
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
               {[
@@ -202,10 +201,10 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                   key={cat.id}
                   type="button"
                   onClick={() => handleSelect('socialCategory', cat.id)}
-                  className={`p-3 rounded-xl border text-center font-semibold transition-all ${
+                  className={`p-3 rounded-xl border text-center font-bold transition-all ${
                     wizardData.socialCategory === cat.id
-                      ? 'bg-orange-500/20 border-orange-500 text-orange-300'
-                      : 'bg-slate-950 border-slate-800 text-slate-400'
+                      ? 'bg-orange-50 border-orange-500 text-orange-900 ring-2 ring-orange-300'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
                   {cat.label}
@@ -214,14 +213,14 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
             </div>
 
             <div className="pt-2">
-              <label className="flex items-center gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 cursor-pointer">
+              <label className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={wizardData.isDivyang}
                   onChange={(e) => handleSelect('isDivyang', e.target.checked)}
                   className="w-4 h-4 accent-orange-500"
                 />
-                <span className="text-xs text-slate-200 font-semibold">
+                <span className="text-xs text-slate-800 font-bold">
                   क्या आप 40% या अधिक दिव्यांग (Divyangjan) हैं?
                 </span>
               </label>
@@ -232,7 +231,7 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
         {/* STEP 4: Occupation */}
         {step === 4 && (
           <div className="space-y-4 my-6">
-            <h3 className="text-sm font-bold text-slate-200">4. आपका मुख्य पेशा (काम) क्या है?</h3>
+            <h3 className="text-sm font-bold text-slate-800">4. आपका मुख्य पेशा (काम) क्या है?</h3>
             
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
               {[
@@ -247,10 +246,10 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                   key={occ.id}
                   type="button"
                   onClick={() => handleSelect('occupation', occ.id)}
-                  className={`p-3.5 rounded-xl border text-center font-semibold transition-all ${
+                  className={`p-3.5 rounded-xl border text-center font-bold transition-all ${
                     wizardData.occupation === occ.id
-                      ? 'bg-orange-500/20 border-orange-500 text-orange-300'
-                      : 'bg-slate-950 border-slate-800 text-slate-400'
+                      ? 'bg-orange-50 border-orange-500 text-orange-900 ring-2 ring-orange-300'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
                   <span className="text-xl block mb-1">{occ.icon}</span>
@@ -261,14 +260,14 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
           </div>
         )}
 
-        {/* STEP 5: Ration Card & Income */}
+        {/* STEP 5: Ration & Income */}
         {step === 5 && (
           <div className="space-y-4 my-6">
-            <h3 className="text-sm font-bold text-slate-200">5. राशन कार्ड एवं वार्षिक आय</h3>
+            <h3 className="text-sm font-bold text-slate-800">5. राशन कार्ड एवं वार्षिक आय</h3>
             
             <div className="space-y-2.5">
-              <label className="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800 cursor-pointer">
-                <span className="text-xs text-slate-200 font-semibold">
+              <label className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer">
+                <span className="text-xs text-slate-800 font-bold">
                   क्या आपके परिवार के पास राशन कार्ड (BPL / अंत्योदय) है?
                 </span>
                 <input
@@ -279,14 +278,14 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                 />
               </label>
 
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-xs text-slate-400 block mb-2 font-semibold">पारिवारिक वार्षिक आय:</span>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <span className="text-xs text-slate-600 block mb-2 font-bold">पारिवारिक वार्षिक आय:</span>
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <button
                     type="button"
                     onClick={() => handleSelect('incomeLevel', 'bpl')}
-                    className={`py-2 rounded-lg border font-semibold ${
-                      wizardData.incomeLevel === 'bpl' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400'
+                    className={`py-2 rounded-lg border font-bold ${
+                      wizardData.incomeLevel === 'bpl' ? 'bg-emerald-100 border-emerald-400 text-emerald-900' : 'bg-white border-slate-200 text-slate-600'
                     }`}
                   >
                     ₹1 लाख से कम
@@ -294,8 +293,8 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                   <button
                     type="button"
                     onClick={() => handleSelect('incomeLevel', 'low')}
-                    className={`py-2 rounded-lg border font-semibold ${
-                      wizardData.incomeLevel === 'low' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400'
+                    className={`py-2 rounded-lg border font-bold ${
+                      wizardData.incomeLevel === 'low' ? 'bg-emerald-100 border-emerald-400 text-emerald-900' : 'bg-white border-slate-200 text-slate-600'
                     }`}
                   >
                     ₹1L से ₹2.5L
@@ -303,8 +302,8 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
                   <button
                     type="button"
                     onClick={() => handleSelect('incomeLevel', 'middle')}
-                    className={`py-2 rounded-lg border font-semibold ${
-                      wizardData.incomeLevel === 'middle' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400'
+                    className={`py-2 rounded-lg border font-bold ${
+                      wizardData.incomeLevel === 'middle' ? 'bg-emerald-100 border-emerald-400 text-emerald-900' : 'bg-white border-slate-200 text-slate-600'
                     }`}
                   >
                     ₹2.5L से अधिक
@@ -316,11 +315,11 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
           {step > 1 ? (
             <button
               onClick={() => setStep(step - 1)}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5"
             >
               <ArrowLeft className="w-4 h-4" /> पिछला
             </button>
@@ -328,7 +327,7 @@ export default function InteractiveWizardModal({ onClose, onCompleteWizard }) {
 
           <button
             onClick={handleNext}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-extrabold flex items-center gap-1.5 shadow"
+            className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-orange-600 text-white text-xs font-black flex items-center gap-1.5 shadow"
           >
             <span>{step === 5 ? 'योजनाएं खोजें (Find Schemes)' : 'अगला सवाल'}</span>
             <ArrowRight className="w-4 h-4" />

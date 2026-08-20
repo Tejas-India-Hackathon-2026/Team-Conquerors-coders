@@ -18,6 +18,15 @@ import AudioVisualizer from './AudioVisualizer';
 import { DEMO_PERSONAS } from '../data/personas';
 import { speechSynthesizer } from '../services/speechSynthesizer';
 
+const PERSONA_COLORS = {
+  kisan: 'border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-950',
+  student: 'border-blue-200 bg-blue-50/50 hover:bg-blue-50 text-blue-950',
+  women: 'border-rose-200 bg-rose-50/50 hover:bg-rose-50 text-rose-950',
+  business: 'border-purple-200 bg-purple-50/50 hover:bg-purple-50 text-purple-950',
+  elderly: 'border-amber-200 bg-amber-50/50 hover:bg-amber-50 text-amber-950',
+  laborer: 'border-cyan-200 bg-cyan-50/50 hover:bg-cyan-50 text-cyan-950'
+};
+
 export default function VoiceHero({
   isListening,
   transcript,
@@ -138,9 +147,9 @@ export default function VoiceHero({
           {/* Ripples when active */}
           {isListening && (
             <>
-              <div className="mic-ripple-ring-light" />
-              <div className="mic-ripple-ring-light" />
-              <div className="mic-ripple-ring-light" />
+              <div className="mic-ripple-ring" />
+              <div className="mic-ripple-ring" />
+              <div className="mic-ripple-ring" />
             </>
           )}
 
@@ -250,7 +259,7 @@ export default function VoiceHero({
         </div>
       </div>
 
-      {/* Visual Persona Cards for Illiterate Citizens (Clean White Tiles) */}
+      {/* Visual Persona Cards for Illiterate Citizens (Vibrant Pastel Tiles) */}
       <div className="max-w-4xl mx-auto text-left">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -267,28 +276,28 @@ export default function VoiceHero({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {DEMO_PERSONAS.map((persona) => {
             const isSelected = activePersonaId === persona.id;
+            const colorClass = PERSONA_COLORS[persona.id] || 'border-slate-200 bg-white';
+
             return (
               <button
                 key={persona.id}
                 onClick={() => handleSelectPersona(persona)}
-                className={`p-4 rounded-3xl border transition-all text-left flex flex-col justify-between group relative overflow-hidden card-hover-clean ${
-                  isSelected
-                    ? 'bg-orange-50 border-orange-500 shadow-md ring-2 ring-orange-500/20 scale-105'
-                    : 'bg-white hover:bg-slate-50 border-slate-200 shadow-sm'
+                className={`p-4 rounded-3xl border-2 transition-all text-left flex flex-col justify-between group relative overflow-hidden gov-card ${colorClass} ${
+                  isSelected ? 'ring-4 ring-orange-500/30 scale-105 !border-orange-500 shadow-lg' : ''
                 }`}
               >
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform">{persona.avatar}</span>
-                  <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-orange-500 group-hover:text-white text-slate-500 flex items-center justify-center transition-colors shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-white group-hover:bg-orange-500 group-hover:text-white text-slate-600 flex items-center justify-center transition-colors shadow-sm border border-slate-200/60">
                     <Volume2 className="w-3.5 h-3.5" />
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-orange-600 transition-colors">
+                  <div className="text-xs sm:text-sm font-black transition-colors">
                     {persona.nameHindi}
                   </div>
-                  <div className="text-[10px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                  <div className="text-[10px] opacity-75 font-semibold line-clamp-1 mt-0.5">
                     {persona.tagline}
                   </div>
                 </div>
