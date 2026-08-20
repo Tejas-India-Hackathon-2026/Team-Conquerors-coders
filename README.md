@@ -173,4 +173,4 @@ Yojana Sathi follows a modular architecture designed to provide a simple voice-f
 
 User
 ↓
-Voice / Text
+Voice
