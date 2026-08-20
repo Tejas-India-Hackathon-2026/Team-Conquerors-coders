@@ -175,4 +175,3 @@ User
 ↓
 Voice / Text Input
 ↓
-Speech
