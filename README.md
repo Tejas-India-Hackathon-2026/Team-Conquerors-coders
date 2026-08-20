@@ -1,11 +1,13 @@
 # 🎙️ योजना साथी (Yojana Sathi)
+
 > **"बोलो अपनी ज़िंदगी के बारे में, AI बताएगा कौन से सरकारी योजना तुम्हारे लिए हैं — और कैसे अप्लाई करें।"**
-> 
-> *Voice-First AI Assistant connecting every citizen of Bihar and India to government schemes they qualify for.*
+>
+> _Voice-First AI Assistant connecting every citizen of Bihar and India to government schemes they qualify for._
 
 ---
 
 ## 🏆 Hackathon Details
+
 - **Project:** Yojana Sathi (योजना साथी)
 - **Event:** Tejas India Hackathon 2026 · DPIIT Government of India Initiative
 - **Track:** Fintech / Sustainable Development / Open Innovation
@@ -56,8 +58,32 @@ npm run dev
 ---
 
 ## 🏗️ Tech Stack
+
 - **Frontend:** React 19, Tailwind CSS, Lucide Icons, Canvas-Confetti
 - **Build Tool:** Vite 6
 - **Voice Engine:** Web Speech API (`webkitSpeechRecognition` + `SpeechSynthesis`)
 - **Intelligence:** Hybrid Rule Engine + Google Gemini AI integration
 - **Deployment Ready:** Vercel / Netlify / GitHub Pages
+
+## Project Overview
+
+Yojana Sathi is an AI-powered, voice-first platform designed to help citizens discover government schemes and understand their eligibility in simple language.
+
+## Key Features
+
+- Voice-first interaction
+- AI-powered scheme matching
+- Government scheme discovery
+- Eligibility-based recommendations
+- Detailed scheme information
+- CSC locator
+- Responsive user interface
+
+## Technology Stack
+
+- React
+- Vite
+- JavaScript
+- Tailwind CSS
+- Node.js
+- Web Speech API
