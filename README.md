@@ -161,6 +161,3 @@ User
 → Voice / Text Input
 → Requirement Understanding
 → Scheme Matching
-→ Eligibility Check
-→ Scheme Details
-→reaction
