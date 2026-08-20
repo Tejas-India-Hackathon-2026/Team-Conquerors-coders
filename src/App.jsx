@@ -13,7 +13,10 @@ import {
   Crown,
   Activity,
   Check,
-  Headphones
+  Headphones,
+  Scale,
+  ShieldAlert,
+  SlidersHorizontal
 } from 'lucide-react';
 
 import Navbar from './components/Navbar';
@@ -26,13 +29,17 @@ import CscLocatorModal from './components/CscLocatorModal';
 import AnalyticsModal from './components/AnalyticsModal';
 import PricingModal from './components/PricingModal';
 import AutoFormFillModal from './components/AutoFormFillModal';
+import SchemeCompareModal from './components/SchemeCompareModal';
+import GrievanceHelplineModal from './components/GrievanceHelplineModal';
+import InteractiveWizardModal from './components/InteractiveWizardModal';
+import AiCopilotFloatingWidget from './components/AiCopilotFloatingWidget';
 import TeamModal from './components/TeamModal';
 import Footer from './components/Footer';
 
-import { speechRecognizer } from './services/speechRecognition';
-import { speechSynthesizer } from './services/speechSynthesizer';
-import { extractProfileFromText, matchSchemes } from './services/aiMatchingEngine';
-import { SCHEMES_DATABASE } from './data/schemes';
+import { speechRecognizer } from './services/speechRecognition.js';
+import { speechSynthesizer } from './services/speechSynthesizer.js';
+import { extractProfileFromText, matchSchemes } from './services/aiMatchingEngine.js';
+import { SCHEMES_DATABASE } from './data/schemes.js';
 
 export default function App() {
   // State
@@ -47,14 +54,17 @@ export default function App() {
   const [hasSearched, setHasSearched] = useState(false);
 
   // Subscription / Premium State
-  const [isPremium, setIsPremium] = useState(true); // Default to active for live demo
+  const [isPremium, setIsPremium] = useState(true);
   const [isTrialActive, setIsTrialActive] = useState(true);
 
-  // Modals & Audio
+  // Modals & Navigation
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
   const [isCscModalOpen, setIsCscModalOpen] = useState(false);
   const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+  const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
+  const [isWizardModalOpen, setIsWizardModalOpen] = useState(false);
   const [autoFillScheme, setAutoFillScheme] = useState(null);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState(null);
@@ -119,7 +129,6 @@ export default function App() {
     speechSynthesizer.stop();
     setPlayingAudioId(null);
 
-    // Try backend API first, fallback to client engine
     let foundProfile = null;
     let foundMatches = [];
 
@@ -166,7 +175,7 @@ export default function App() {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
 
-    // AUTOMATIC VOICE READOUT for illiterate citizens
+    // Voice readout
     setTimeout(() => {
       speechSynthesizer.speakResultsSummary(foundMatches, {
         onStart: (id) => setPlayingAudioId(id),
@@ -205,6 +214,9 @@ export default function App() {
         onOpenPricing={() => setIsPricingModalOpen(true)}
         onOpenTeam={() => setIsTeamModalOpen(true)}
         onOpenDirectory={() => setActiveTab('directory')}
+        onOpenCompare={() => setIsCompareModalOpen(true)}
+        onOpenHelpline={() => setIsHelplineModalOpen(true)}
+        onOpenWizard={() => setIsWizardModalOpen(true)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isPremium={isPremium}
@@ -298,11 +310,19 @@ export default function App() {
                         )}
 
                         <button
+                          onClick={() => setIsCompareModalOpen(true)}
+                          className="text-xs font-bold text-cyan-300 hover:text-white bg-cyan-950/60 border border-cyan-500/40 hover:bg-cyan-900 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5"
+                        >
+                          <Scale className="w-4 h-4 text-cyan-400" />
+                          <span>योजना तुलना</span>
+                        </button>
+
+                        <button
                           onClick={() => setActiveTab('directory')}
                           className="text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5"
                         >
                           <Layers className="w-4 h-4 text-orange-400" />
-                          <span>सभी 10+ योजनाएं</span>
+                          <span>सभी 40+ योजनाएं</span>
                         </button>
                       </div>
                     </div>
@@ -354,6 +374,31 @@ export default function App() {
         />
       )}
 
+      {/* Scheme Comparison Modal */}
+      {isCompareModalOpen && (
+        <SchemeCompareModal
+          onClose={() => setIsCompareModalOpen(false)}
+        />
+      )}
+
+      {/* Grievance & Helpline Modal */}
+      {isHelplineModalOpen && (
+        <GrievanceHelplineModal
+          onClose={() => setIsHelplineModalOpen(false)}
+        />
+      )}
+
+      {/* 5-Step Smart Finder Wizard */}
+      {isWizardModalOpen && (
+        <InteractiveWizardModal
+          onClose={() => setIsWizardModalOpen(false)}
+          onCompleteWizard={(synthesizedQuery) => {
+            setTranscript(synthesizedQuery);
+            handleAnalyze(synthesizedQuery);
+          }}
+        />
+      )}
+
       {/* Pricing / Subscription Modal */}
       {isPricingModalOpen && (
         <PricingModal
@@ -391,6 +436,9 @@ export default function App() {
           onOpenPricing={() => setIsPricingModalOpen(true)}
         />
       )}
+
+      {/* Always-On 24x7 AI Voice Copilot Floating Widget */}
+      <AiCopilotFloatingWidget />
 
       {/* Footer */}
       <Footer onOpenTeam={() => setIsTeamModalOpen(true)} />
