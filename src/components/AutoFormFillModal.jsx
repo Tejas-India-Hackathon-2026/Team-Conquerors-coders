@@ -517,22 +517,34 @@ export default function AutoFormFillModal({ scheme, onClose, isPremium }) {
             </div>
 
             {/* Slip Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 flex-wrap">
               <button
                 onClick={handlePrintSlip}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 border border-slate-700 shadow"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 border border-slate-700 shadow"
               >
                 <Printer className="w-4 h-4 text-emerald-400" />
-                <span>पावती पर्ची प्रिंट / PDF सेव करें</span>
+                <span>पावती पर्ची प्रिंट / PDF</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  const text = `📄 *योजना साथी - आवेदन पावती पर्ची*\n\n📌 *आवेदन संदर्भ (Ref No):* ${formData.applicationId}\n🏛️ *योजना:* ${formData.schemeName}\n👤 *आवेदक का नाम:* ${formData.fullName}\n📍 *स्थान:* ${formData.village}, ${formData.panchayat}, ${formData.block}, ${formData.district}\n✅ *पात्रता स्थिति:* 100% सत्यापित\n\n_योजना साथी AI - बिहार के हर नागरिक का हक़_`;
+                  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+                  window.open(url, '_blank');
+                }}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>व्हाट्सएप पर पर्ची भेजें</span>
               </button>
 
               <a
                 href={scheme?.officialLink || "https://pmkisan.gov.in"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
               >
-                <span>सरकारी पोर्टल पर डायरेक्ट सबमिट करें</span>
+                <span>सरकारी पोर्टल पर जाएं</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
             </div>

@@ -16,7 +16,9 @@ import {
   Headphones,
   Scale,
   ShieldAlert,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Star,
+  Bookmark
 } from 'lucide-react';
 
 import Navbar from './components/Navbar';
@@ -32,6 +34,8 @@ import AutoFormFillModal from './components/AutoFormFillModal';
 import SchemeCompareModal from './components/SchemeCompareModal';
 import GrievanceHelplineModal from './components/GrievanceHelplineModal';
 import InteractiveWizardModal from './components/InteractiveWizardModal';
+import SavedSchemesModal from './components/SavedSchemesModal';
+import PanchayatFlyerModal from './components/PanchayatFlyerModal';
 import AiCopilotFloatingWidget from './components/AiCopilotFloatingWidget';
 import TeamModal from './components/TeamModal';
 import Footer from './components/Footer';
@@ -53,6 +57,36 @@ export default function App() {
   const [matchedSchemes, setMatchedSchemes] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
 
+  // Bookmarking / Offline Saved Schemes State
+  const [savedSchemeIds, setSavedSchemeIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('yojana_sathi_saved_schemes');
+      return saved ? JSON.parse(saved) : ['kanya-utthan', 'pm-kisan-samman'];
+    } catch (e) {
+      return ['kanya-utthan', 'pm-kisan-samman'];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('yojana_sathi_saved_schemes', JSON.stringify(savedSchemeIds));
+    } catch (e) {}
+  }, [savedSchemeIds]);
+
+  const handleToggleBookmark = (schemeId) => {
+    setSavedSchemeIds(prev => {
+      if (prev.includes(schemeId)) {
+        return prev.filter(id => id !== schemeId);
+      } else {
+        return [...prev, schemeId];
+      }
+    });
+  };
+
+  const handleClearAllBookmarks = () => {
+    setSavedSchemeIds([]);
+  };
+
   // Subscription / Premium State
   const [isPremium, setIsPremium] = useState(true);
   const [isTrialActive, setIsTrialActive] = useState(true);
@@ -65,6 +99,8 @@ export default function App() {
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
   const [isWizardModalOpen, setIsWizardModalOpen] = useState(false);
+  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [flyerScheme, setFlyerScheme] = useState(null);
   const [autoFillScheme, setAutoFillScheme] = useState(null);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState(null);
@@ -105,9 +141,9 @@ export default function App() {
   const handleStartListening = () => {
     speechSynthesizer.stop();
     setPlayingAudioId(null);
-    setTranscript(''); // Clear previous text!
+    setTranscript('');
     latestTranscriptRef.current = '';
-    speechRecognizer.reset(); // Reset buffer!
+    speechRecognizer.reset();
 
     speechRecognizer.start({
       lang: selectedLanguage,
@@ -118,13 +154,11 @@ export default function App() {
       onStart: () => setIsListening(true),
       onEnd: () => {
         setIsListening(false);
-        // If user stopped mic and spoke something, automatically search!
         if (latestTranscriptRef.current && latestTranscriptRef.current.trim().length >= 4) {
           handleAnalyze(latestTranscriptRef.current);
         }
       },
       onSilenceAutoSearch: (silenceText) => {
-        // Auto search on 2 seconds of silence!
         if (silenceText && silenceText.trim().length >= 4) {
           speechRecognizer.stop();
           setIsListening(false);
@@ -189,7 +223,7 @@ export default function App() {
     setHasSearched(true);
     setIsAnalyzing(false);
 
-    // Emotion-aware celebratory confetti (only for positive achievements like scholarship/business, never on grief/distress)
+    // Emotion-aware celebratory confetti
     const isDistress = foundProfile?.marital_status === 'widow' || foundProfile?.disability_status || foundProfile?.has_pucca_house === false;
     if (foundMatches.length > 0 && !isDistress) {
       try {
@@ -202,7 +236,7 @@ export default function App() {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
 
-    // Emotion-aware Voice narration (No generic 'बधाई हो' for grief/distress)
+    // Emotion-aware Voice narration
     setTimeout(() => {
       speechSynthesizer.speakResultsSummary(foundMatches, {
         rawTranscript: text,
@@ -246,6 +280,8 @@ export default function App() {
         onOpenCompare={() => setIsCompareModalOpen(true)}
         onOpenHelpline={() => setIsHelplineModalOpen(true)}
         onOpenWizard={() => setIsWizardModalOpen(true)}
+        onOpenSaved={() => setIsSavedModalOpen(true)}
+        savedCount={savedSchemeIds.length}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isPremium={isPremium}
@@ -366,6 +402,8 @@ export default function App() {
                           onPlayAudio={handlePlayAudio}
                           onStopAudio={handleStopAudio}
                           onOpenDetails={(s) => setSelectedSchemeDetail(s)}
+                          isSaved={savedSchemeIds.includes(scheme.id)}
+                          onToggleBookmark={handleToggleBookmark}
                         />
                       ))}
                     </div>
@@ -407,6 +445,8 @@ export default function App() {
                         onPlayAudio={handlePlayAudio}
                         onStopAudio={handleStopAudio}
                         onOpenDetails={(s) => setSelectedSchemeDetail(s)}
+                        isSaved={savedSchemeIds.includes(scheme.id)}
+                        onToggleBookmark={handleToggleBookmark}
                       />
                     ))}
                   </div>
@@ -430,6 +470,12 @@ export default function App() {
             setSelectedSchemeDetail(null);
             setAutoFillScheme(s);
           }}
+          onOpenFlyer={(s) => {
+            setSelectedSchemeDetail(null);
+            setFlyerScheme(s);
+          }}
+          isSaved={savedSchemeIds.includes(selectedSchemeDetail.id)}
+          onToggleBookmark={handleToggleBookmark}
         />
       )}
 
@@ -439,6 +485,28 @@ export default function App() {
           scheme={autoFillScheme}
           onClose={() => setAutoFillScheme(null)}
           isPremium={isPremium}
+        />
+      )}
+
+      {/* Panchayat Notice A4 Flyer Modal */}
+      {flyerScheme && (
+        <PanchayatFlyerModal
+          scheme={flyerScheme}
+          onClose={() => setFlyerScheme(null)}
+        />
+      )}
+
+      {/* Saved / Bookmarked Schemes Drawer */}
+      {isSavedModalOpen && (
+        <SavedSchemesModal
+          onClose={() => setIsSavedModalOpen(false)}
+          savedSchemeIds={savedSchemeIds}
+          onRemoveBookmark={handleToggleBookmark}
+          onClearAllBookmarks={handleClearAllBookmarks}
+          onOpenDetails={(s) => setSelectedSchemeDetail(s)}
+          isPlayingAudio={playingAudioId}
+          onPlayAudio={handlePlayAudio}
+          onStopAudio={handleStopAudio}
         />
       )}
 

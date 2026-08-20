@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, MapPin, Users, BarChart3, Crown, ShieldAlert, Scale, SlidersHorizontal } from 'lucide-react';
+import { Sparkles, MapPin, Users, BarChart3, Crown, ShieldAlert, Scale, SlidersHorizontal, Star } from 'lucide-react';
 
 export default function Navbar({ 
   onOpenCsc, 
@@ -10,6 +10,8 @@ export default function Navbar({
   onOpenCompare,
   onOpenHelpline,
   onOpenWizard,
+  onOpenSaved,
+  savedCount = 0,
   activeTab, 
   setActiveTab,
   isPremium,
@@ -52,7 +54,7 @@ export default function Navbar({
           </div>
 
           {/* Navigation Links / Action Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap justify-end">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
             
             {/* 5-Step Finder Wizard */}
             <button
@@ -70,6 +72,15 @@ export default function Navbar({
             >
               <Scale className="w-3.5 h-3.5 text-cyan-400" />
               <span className="hidden md:inline">योजना तुलना</span>
+            </button>
+
+            {/* Saved / Bookmarked Schemes */}
+            <button
+              onClick={onOpenSaved}
+              className="px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition-all flex items-center gap-1.5"
+            >
+              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+              <span className="hidden sm:inline">सेव्ड ({savedCount})</span>
             </button>
 
             {/* Helpline & Grievance */}

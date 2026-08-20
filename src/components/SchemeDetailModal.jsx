@@ -14,7 +14,10 @@ import {
   PhoneCall,
   Mic,
   Crown,
-  Sparkles
+  Sparkles,
+  Printer,
+  Star,
+  FileText
 } from 'lucide-react';
 
 export default function SchemeDetailModal({
@@ -23,7 +26,10 @@ export default function SchemeDetailModal({
   isPlayingAudio,
   onPlayAudio,
   onStopAudio,
-  onOpenAutoFormFill
+  onOpenAutoFormFill,
+  onOpenFlyer,
+  isSaved = false,
+  onToggleBookmark
 }) {
   const [checkedDocs, setCheckedDocs] = useState({});
 
@@ -59,14 +65,30 @@ export default function SchemeDetailModal({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header Badges */}
-        <div className="flex items-center gap-2 mb-3 pr-10 flex-wrap">
-          <span className={`text-xs font-bold px-3 py-1 rounded-full border ${scheme.badgeColor}`}>
-            {scheme.categoryLabel}
-          </span>
-          <span className="text-xs font-semibold text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
-            {scheme.level}
-          </span>
+        {/* Header Badges & Bookmark */}
+        <div className="flex items-center justify-between gap-2 mb-3 pr-10 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`text-xs font-bold px-3 py-1 rounded-full border ${scheme.badgeColor}`}>
+              {scheme.categoryLabel}
+            </span>
+            <span className="text-xs font-semibold text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+              {scheme.level}
+            </span>
+          </div>
+
+          {onToggleBookmark && (
+            <button
+              onClick={() => onToggleBookmark(scheme.id)}
+              className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border ${
+                isSaved
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                  : 'bg-slate-950 text-slate-400 hover:text-amber-300 border-slate-800'
+              }`}
+            >
+              <Star className={`w-3.5 h-3.5 ${isSaved ? 'fill-amber-400 text-amber-400' : ''}`} />
+              <span>{isSaved ? 'सेव्ड (Saved)' : 'योजना सेव करें'}</span>
+            </button>
+          )}
         </div>
 
         {/* Title */}
@@ -89,13 +111,26 @@ export default function SchemeDetailModal({
             </p>
           </div>
 
-          <button
-            onClick={() => onOpenAutoFormFill(scheme)}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-md shadow-orange-500/20 hover:scale-105 transition-all"
-          >
-            <Mic className="w-4 h-4" />
-            <span>आवाज़ से फॉर्म भरें</span>
-          </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {onOpenFlyer && (
+              <button
+                onClick={() => onOpenFlyer(scheme)}
+                className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white text-xs font-bold border border-slate-700 flex items-center gap-1.5"
+                title="A4 पोस्टर"
+              >
+                <Printer className="w-4 h-4 text-blue-400" />
+                <span className="hidden sm:inline">A4 पर्चा</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => onOpenAutoFormFill(scheme)}
+              className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-md shadow-orange-500/20 hover:scale-105 transition-all"
+            >
+              <Mic className="w-4 h-4" />
+              <span>आवाज़ से फॉर्म भरें</span>
+            </button>
+          </div>
         </div>
 
         {/* Audio Listen Bar */}
