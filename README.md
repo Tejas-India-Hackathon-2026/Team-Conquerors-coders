@@ -161,3 +161,41 @@ User
 → Voice / Text Input
 → Requirement Understanding
 → Scheme Matching
+→ Eligibility Check
+→ Scheme Details
+→ Action / Assistance
+
+## 🏗️ System Architecture
+
+Yojana Sathi follows a modular architecture designed to provide a simple voice-first experience for discovering and understanding government schemes.
+
+### Architecture Flow
+
+User
+↓
+Voice / Text Input
+↓
+Speech Recognition & Input Processing
+↓
+AI Matching Engine
+↓
+Government Scheme Data
+↓
+Eligibility & Recommendation
+↓
+Scheme Details
+↓
+Voice / Visual Response
+
+### Core Components
+
+- **Voice Interface** — Captures user queries through speech.
+- **Speech Recognition** — Converts spoken input into text.
+- **AI Matching Engine** — Processes user information and matches relevant schemes.
+- **Scheme Data Layer** — Provides government scheme information.
+- **Eligibility Engine** — Evaluates whether schemes match user requirements.
+- **Scheme Directory** — Allows users to explore available schemes.
+- **Scheme Details** — Displays detailed information about selected schemes.
+- **CSC Locator** — Helps users find nearby Common Service Centres.
+- **Analytics Module** — Tracks relevant application interactions.
+- **Responsive UI** — Provides an accessible experience across devices.
