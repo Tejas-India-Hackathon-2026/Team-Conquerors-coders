@@ -190,4 +190,3 @@ Voice / Visual Response
 ### Core Components
 
 - **Voice Interface** — Captures user queries through speech.
-- **Speech Recognition**
