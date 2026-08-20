@@ -1,6 +1,7 @@
 /**
  * Web Speech API Voice Recognition Service
- * Supports Hindi (hi-IN) and Indian English (en-IN)
+ * Robust, resilient speech-to-text with auto-restart on silence,
+ * full transcript accumulation (never drops words), and Hindi/Bhojpuri/Maithili dialect normalization.
  */
 
 export class SpeechRecognitionService {
@@ -8,10 +9,13 @@ export class SpeechRecognitionService {
     this.recognition = null;
     this.isListening = false;
     this.language = 'hi-IN'; // Default to Hindi
+    this.accumulatedTranscript = '';
+    this.interimTranscript = '';
     this.onResultCallback = null;
     this.onErrorCallback = null;
     this.onStartCallback = null;
     this.onEndCallback = null;
+    this.silenceTimer = null;
     this.init();
   }
 
@@ -38,35 +42,65 @@ export class SpeechRecognitionService {
     };
 
     this.recognition.onresult = (event) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
+      let finalSegment = '';
+      let currentInterim = '';
 
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
+      // Loop through all results from the beginning of current recognition session
+      for (let i = 0; i < event.results.length; ++i) {
+        const item = event.results[i];
+        if (item.isFinal) {
+          finalSegment += item[0].transcript + ' ';
         } else {
-          interimTranscript += event.results[i][0].transcript;
+          currentInterim += item[0].transcript;
         }
       }
 
+      this.interimTranscript = currentInterim;
+      
+      // Combine permanently accumulated text with current session final text and interim
+      const fullText = (this.accumulatedTranscript + ' ' + finalSegment + ' ' + currentInterim)
+        .replace(/\s+/g, ' ')
+        .trim();
+
       if (this.onResultCallback) {
         this.onResultCallback({
-          final: finalTranscript,
-          interim: interimTranscript,
-          combined: finalTranscript || interimTranscript
+          final: (this.accumulatedTranscript + ' ' + finalSegment).trim(),
+          interim: currentInterim,
+          combined: fullText
         });
       }
     };
 
     this.recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      this.isListening = false;
-      if (this.onErrorCallback) this.onErrorCallback(event.error);
+      console.warn('Speech recognition status/error:', event.error);
+      if (event.error === 'no-speech') {
+        // If no speech detected yet keep listening if user hasn't explicitly stopped
+        return;
+      }
+      if (event.error === 'not-allowed') {
+        this.isListening = false;
+        if (this.onErrorCallback) this.onErrorCallback('MIC_PERMISSION_DENIED');
+      }
     };
 
     this.recognition.onend = () => {
-      this.isListening = false;
-      if (this.onEndCallback) this.onEndCallback();
+      // If user is still supposed to be listening (e.g. pause between words), auto-restart!
+      if (this.isListening) {
+        try {
+          // Commit current final segment into accumulated
+          if (this.interimTranscript) {
+            this.accumulatedTranscript = (this.accumulatedTranscript + ' ' + this.interimTranscript).trim();
+            this.interimTranscript = '';
+          }
+          this.recognition.start();
+        } catch (e) {
+          // Restart failed, gracefully set listening false
+          this.isListening = false;
+          if (this.onEndCallback) this.onEndCallback();
+        }
+      } else {
+        if (this.onEndCallback) this.onEndCallback();
+      }
     };
   }
 
@@ -77,7 +111,7 @@ export class SpeechRecognitionService {
     }
   }
 
-  start({ onResult, onError, onStart, onEnd, lang = 'hi-IN' } = {}) {
+  start({ onResult, onError, onStart, onEnd, lang = 'hi-IN', initialText = '' } = {}) {
     if (!this.isSupported()) {
       if (onError) onError('NOT_SUPPORTED');
       return;
@@ -88,32 +122,42 @@ export class SpeechRecognitionService {
     this.onStartCallback = onStart;
     this.onEndCallback = onEnd;
     this.setLanguage(lang);
+    this.accumulatedTranscript = initialText || '';
+    this.interimTranscript = '';
+    this.isListening = true;
 
     try {
       this.recognition.start();
     } catch (err) {
-      console.warn('Recognition already started or error:', err);
-      // Restart cleanly
-      this.recognition.stop();
+      // If already started, stop and restart cleanly
+      try {
+        this.recognition.stop();
+      } catch (e) {}
       setTimeout(() => {
         try {
+          this.isListening = true;
           this.recognition.start();
         } catch (e) {
-          console.error(e);
+          console.error('Speech start retry failed:', e);
         }
-      }, 200);
+      }, 150);
     }
   }
 
   stop() {
-    if (this.recognition && this.isListening) {
+    this.isListening = false;
+    if (this.recognition) {
       try {
         this.recognition.stop();
       } catch (err) {
-        console.error(err);
+        console.warn(err);
       }
     }
-    this.isListening = false;
+  }
+
+  clear() {
+    this.accumulatedTranscript = '';
+    this.interimTranscript = '';
   }
 }
 

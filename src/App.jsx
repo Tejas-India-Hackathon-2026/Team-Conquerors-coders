@@ -7,10 +7,12 @@ import {
   AlertCircle, 
   CheckCircle2, 
   Volume2, 
+  VolumeX,
   Printer, 
   Layers,
   Activity,
-  Check
+  Check,
+  Headphones
 } from 'lucide-react';
 
 import Navbar from './components/Navbar';
@@ -47,7 +49,6 @@ export default function App() {
   const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState(null);
-  const [isPrinting, setIsPrinting] = useState(false);
 
   const resultsRef = useRef(null);
 
@@ -66,7 +67,7 @@ export default function App() {
     };
 
     speechRecognizer.onErrorCallback = (err) => {
-      console.warn('Speech error:', err);
+      console.warn('Speech error callback:', err);
       setIsListening(false);
     };
 
@@ -82,6 +83,7 @@ export default function App() {
     setPlayingAudioId(null);
     speechRecognizer.start({
       lang: selectedLanguage,
+      initialText: transcript,
       onResult: ({ combined }) => {
         setTranscript(combined);
       },
@@ -97,16 +99,21 @@ export default function App() {
     setIsListening(false);
   };
 
-  // Run AI Matching
+  // Run AI Matching with Auto Voice Readout
   const handleAnalyze = async (textToAnalyze) => {
     const text = textToAnalyze || transcript;
     if (!text.trim()) return;
 
+    speechRecognizer.stop();
+    setIsListening(false);
     setIsAnalyzing(true);
     speechSynthesizer.stop();
     setPlayingAudioId(null);
 
     // Try backend API first, fallback to client engine
+    let foundProfile = null;
+    let foundMatches = [];
+
     try {
       const apiRes = await fetch('/api/ai/match', {
         method: 'POST',
@@ -116,49 +123,47 @@ export default function App() {
 
       if (apiRes.ok) {
         const json = await apiRes.json();
-        if (json.success && json.data) {
+        if (json.success && json.data && json.data.matchedSchemes?.length > 0) {
           const clientProfile = extractProfileFromText(text);
-          setExtractedProfile({ ...json.data.profile, extractedTags: clientProfile.extractedTags });
-          setMatchedSchemes(json.data.matchedSchemes);
-          setHasSearched(true);
-          setIsAnalyzing(false);
-
-          if (json.data.matchedSchemes.length > 0) {
-            try {
-              confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-            } catch (e) {}
-          }
-
-          setTimeout(() => {
-            resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
-          return;
+          foundProfile = { ...json.data.profile, extractedTags: clientProfile.extractedTags };
+          foundMatches = json.data.matchedSchemes;
         }
       }
     } catch (err) {
       // Fallback
     }
 
-    // Client-side fallback
+    if (!foundMatches || foundMatches.length === 0) {
+      const clientProfile = extractProfileFromText(text);
+      const result = matchSchemes(clientProfile, text);
+      foundProfile = result.profile;
+      foundMatches = result.matchedSchemes;
+    }
+
+    setExtractedProfile(foundProfile);
+    setMatchedSchemes(foundMatches);
+    setHasSearched(true);
+    setIsAnalyzing(false);
+
+    // Confetti celebration
+    if (foundMatches.length > 0) {
+      try {
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      } catch (e) {}
+    }
+
+    // Scroll to results
     setTimeout(() => {
-      const profile = extractProfileFromText(text);
-      const result = matchSchemes(profile, text);
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
 
-      setExtractedProfile(result.profile);
-      setMatchedSchemes(result.matchedSchemes);
-      setHasSearched(true);
-      setIsAnalyzing(false);
-
-      if (result.matchedSchemes.length > 0) {
-        try {
-          confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-        } catch (e) {}
-      }
-
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }, 300);
+    // AUTOMATIC VOICE READOUT: Speak out the results automatically for illiterate citizens!
+    setTimeout(() => {
+      speechSynthesizer.speakResultsSummary(foundMatches, {
+        onStart: (id) => setPlayingAudioId(id),
+        onEnd: () => setPlayingAudioId(null)
+      });
+    }, 500);
   };
 
   // Audio Playback handler
@@ -237,6 +242,24 @@ export default function App() {
                   {/* Matched Schemes Results Grid */}
                   <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
                     
+                    {/* Auto-Audio Notification Bar for Non-readers */}
+                    {playingAudioId === 'results-summary' && (
+                      <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/20 to-emerald-500/20 border-2 border-orange-500/40 flex items-center justify-between gap-3 shadow-xl animate-pulse">
+                        <div className="flex items-center gap-3">
+                          <Volume2 className="w-6 h-6 text-orange-400 shrink-0" />
+                          <span className="text-sm sm:text-base font-bold text-white">
+                            🔊 योजना साथी आपको रिजल्ट बोलकर सुना रहा है... सुनते रहें!
+                          </span>
+                        </div>
+                        <button
+                          onClick={handleStopAudio}
+                          className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-bold text-slate-300 border border-slate-700"
+                        >
+                          रोकें (Stop)
+                        </button>
+                      </div>
+                    )}
+
                     {/* Results Section Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                       <div>
@@ -273,36 +296,18 @@ export default function App() {
                     </div>
 
                     {/* Matched Cards */}
-                    {matchedSchemes.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {matchedSchemes.map((scheme) => (
-                          <SchemeCard
-                            key={scheme.id}
-                            scheme={scheme}
-                            isPlayingAudio={playingAudioId === scheme.id}
-                            onPlayAudio={handlePlayAudio}
-                            onStopAudio={handleStopAudio}
-                            onOpenDetails={(s) => setSelectedSchemeDetail(s)}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12 bg-slate-900/60 border border-slate-800 rounded-3xl p-8 max-w-2xl mx-auto">
-                        <AlertCircle className="w-12 h-12 text-amber-400 mx-auto mb-3" />
-                        <h3 className="text-lg font-bold text-white mb-1">
-                          कोई सटीक योजना मैच नहीं हुई
-                        </h3>
-                        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-                          कृपया अपनी उम्र, पेशा (जैसे किसान, छात्रा, मजदूर, व्यापार) या जरूरत का थोड़ा और विवरण बोलें।
-                        </p>
-                        <button
-                          onClick={() => setActiveTab('directory')}
-                          className="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs"
-                        >
-                          सभी सरकारी योजनाएं ब्राउज़ करें
-                        </button>
-                      </div>
-                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {matchedSchemes.map((scheme) => (
+                        <SchemeCard
+                          key={scheme.id}
+                          scheme={scheme}
+                          isPlayingAudio={playingAudioId === scheme.id}
+                          onPlayAudio={handlePlayAudio}
+                          onStopAudio={handleStopAudio}
+                          onOpenDetails={(s) => setSelectedSchemeDetail(s)}
+                        />
+                      ))}
+                    </div>
 
                   </section>
                 </>
