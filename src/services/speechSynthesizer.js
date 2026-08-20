@@ -1,6 +1,6 @@
 /**
  * Web Speech API Text-to-Speech (TTS) Service
- * Voices out scheme explanations in natural Hindi
+ * Voices out scheme explanations in natural Hindi with emotion-aware contextual tone
  */
 
 export class SpeechSynthesizerService {
@@ -25,15 +25,12 @@ export class SpeechSynthesizerService {
   }
 
   getHindiVoice() {
-    // Look for Google Hindi, Lekha, or any hi-IN voice
     const hindiVoice = this.voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi'));
     if (hindiVoice) return hindiVoice;
 
-    // Fallback to Indian English
     const indianEngVoice = this.voices.find(v => v.lang === 'en-IN');
     if (indianEngVoice) return indianEngVoice;
 
-    // Fallback to any voice
     return this.voices[0] || null;
   }
 
@@ -43,7 +40,6 @@ export class SpeechSynthesizerService {
       return;
     }
 
-    // Stop any ongoing speech
     this.stop();
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -82,26 +78,44 @@ export class SpeechSynthesizerService {
   }
 
   speakWelcome({ onStart, onEnd } = {}) {
-    const welcomeMsg = "नमस्ते! मैं योजना साथी हूँ। नीचे बने बड़े माइक बटन को दबाइये और अपनी भाषा में बोलिये — आप क्या काम करते हैं, या आपको किस सरकारी योजना की जरूरत है?";
+    const welcomeMsg = "नमस्ते! मैं योजना साथी हूँ। नीचे बने बड़े माइक बटन को दबाइये और अपनी बात बोलिये — आपको किस सरकारी योजना या सहायता की जरूरत है?";
     this.speak(welcomeMsg, { id: 'welcome-guide', onStart, onEnd, rate: 0.90 });
   }
 
-  speakResultsSummary(matchedSchemes = [], { onStart, onEnd } = {}) {
+  /**
+   * Emotion-Aware Contextual Result Narration
+   * Never inappropriately says 'बधाई हो' for distress, illness, disability or grief!
+   */
+  speakResultsSummary(matchedSchemes = [], { rawTranscript = '', profile = null, onStart, onEnd } = {}) {
     if (!matchedSchemes || matchedSchemes.length === 0) {
-      const noMatchMsg = "हमें आपकी बात समझ आई। कृपया अपनी उम्र या काम के बारे में थोड़ा और बोलिये, या नीचे दिए गए कार्ड्स में से अपना काम चुनिये।";
+      const noMatchMsg = "आपकी बात सुनी गई। अधिक सटीक योजना खोजने के लिए कृपया अपनी उम्र या काम के बारे में थोड़ा और बताएं।";
       this.speak(noMatchMsg, { id: 'results-summary', onStart, onEnd, rate: 0.90 });
       return;
     }
 
+    const lower = (rawTranscript + ' ' + (profile?.rawTranscript || '')).toLowerCase();
     const topScheme = matchedSchemes[0];
     const secondScheme = matchedSchemes[1];
-    let summaryText = `बधाई हो! आपकी बात सुनकर आपके लिए ${matchedSchemes.length} योजनाएं मिली हैं। मुख्य योजना है: ${topScheme.hindiName}, जिसमें आपको ${topScheme.benefit} का लाभ मिलेगा।`;
-    
-    if (secondScheme) {
-      summaryText += ` दूसरी योजना है: ${secondScheme.hindiName}।`;
+
+    // Detect distress/grief/illness/disability/widowhood context
+    const isDistressContext = 
+      profile?.marital_status === 'widow' ||
+      profile?.disability_status === true ||
+      profile?.has_pucca_house === false ||
+      /विधवा|पति नहीं|बीमारी|इलाज|अस्पताल|विकलांग|दिव्यांग|नुकसान|बर्बाद|गरीबी|कच्चा मकान|लाचार|बेसहारा|vidhwa|widow|bimari|hospital|divyang/i.test(lower);
+
+    let prefix = "";
+    if (isDistressContext) {
+      prefix = `आपकी जरूरत और परिस्थिति के अनुसार ${matchedSchemes.length} सरकारी सहायता योजनाएं उपलब्ध हैं।`;
+    } else {
+      prefix = `आपकी जानकारी के अनुसार आपके लिए ${matchedSchemes.length} सरकारी योजनाएं पहचानी गई हैं।`;
     }
 
-    summaryText += " पूरी जानकारी के लिए कार्ड पर बने बटन को दबाएं।";
+    let summaryText = `${prefix} सबसे मुख्य योजना है: ${topScheme.hindiName}, जिसमें आपको ${topScheme.benefit} का लाभ मिल सकता है।`;
+
+    if (secondScheme) {
+      summaryText += ` इसके अलावा ${secondScheme.hindiName} भी आपके लिए उपयोगी है।`;
+    }
 
     this.speak(summaryText, { id: 'results-summary', onStart, onEnd, rate: 0.90 });
   }

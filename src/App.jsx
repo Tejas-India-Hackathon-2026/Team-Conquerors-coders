@@ -189,10 +189,11 @@ export default function App() {
     setHasSearched(true);
     setIsAnalyzing(false);
 
-    // Confetti celebration
-    if (foundMatches.length > 0) {
+    // Emotion-aware celebratory confetti (only for positive achievements like scholarship/business, never on grief/distress)
+    const isDistress = foundProfile?.marital_status === 'widow' || foundProfile?.disability_status || foundProfile?.has_pucca_house === false;
+    if (foundMatches.length > 0 && !isDistress) {
       try {
-        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
       } catch (e) {}
     }
 
@@ -201,9 +202,11 @@ export default function App() {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
 
-    // Voice readout
+    // Emotion-aware Voice narration (No generic 'बधाई हो' for grief/distress)
     setTimeout(() => {
       speechSynthesizer.speakResultsSummary(foundMatches, {
+        rawTranscript: text,
+        profile: foundProfile,
         onStart: (id) => setPlayingAudioId(id),
         onEnd: () => setPlayingAudioId(null)
       });
