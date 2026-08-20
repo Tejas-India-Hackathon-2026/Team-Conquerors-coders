@@ -282,9 +282,9 @@ export default function App() {
               }}
             />
 
-            {/* Results Section */}
+            {/* Results Section / Featured Schemes Grid */}
             <div ref={resultsRef} className="scroll-mt-24">
-              {hasSearched && (
+              {hasSearched ? (
                 <>
                   {/* Extracted Profile Tags */}
                   <ExtractedProfile
@@ -319,7 +319,7 @@ export default function App() {
                         <div className="flex items-center gap-2">
                           <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
                           <h2 className="text-xl sm:text-3xl font-extrabold text-white">
-                            आपके लिए पहचानी गई सरकारी योजनाएं
+                            आपके लिए पहचानी गई सरकारी योजनाएं ({matchedSchemes.length})
                           </h2>
                         </div>
                         <p className="text-xs sm:text-sm text-slate-400 mt-1">
@@ -358,7 +358,7 @@ export default function App() {
 
                     {/* Matched Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {matchedSchemes.map((scheme) => (
+                      {(matchedSchemes.length > 0 ? matchedSchemes : SCHEMES_DATABASE.slice(0, 6)).map((scheme) => (
                         <SchemeCard
                           key={scheme.id}
                           scheme={scheme}
@@ -372,6 +372,45 @@ export default function App() {
 
                   </section>
                 </>
+              ) : (
+                /* DEFAULT STATE: Always show Top Featured Schemes on load */
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-amber-400" />
+                        <h2 className="text-xl sm:text-3xl font-extrabold text-white">
+                          बिहार एवं केंद्र की लोकप्रिय सरकारी योजनाएं
+                        </h2>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                        माइक दबाकर अपनी बात बोलें या नीचे दी गई योजनाओं की पूरी जानकारी देखें:
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setActiveTab('directory')}
+                      className="text-xs font-bold text-orange-400 hover:text-white bg-slate-900 border border-slate-800 hover:border-orange-500/40 px-4 py-2.5 rounded-2xl transition-all flex items-center gap-1.5 self-start sm:self-auto"
+                    >
+                      <Layers className="w-4 h-4" />
+                      <span>सभी 40+ योजनाएं डायरेक्टरी देखें →</span>
+                    </button>
+                  </div>
+
+                  {/* Featured Schemes Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {SCHEMES_DATABASE.slice(0, 6).map((scheme) => (
+                      <SchemeCard
+                        key={scheme.id}
+                        scheme={scheme}
+                        isPlayingAudio={playingAudioId === scheme.id}
+                        onPlayAudio={handlePlayAudio}
+                        onStopAudio={handleStopAudio}
+                        onOpenDetails={(s) => setSelectedSchemeDetail(s)}
+                      />
+                    ))}
+                  </div>
+                </section>
               )}
             </div>
           </>
