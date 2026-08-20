@@ -175,6 +175,4 @@ User
 ↓
 Voice / Text Input
 ↓
-Speech Recognition & Input Processing
-↓
-AI
+Speech Recognition & Input
