@@ -170,4 +170,4 @@ v
 
 ### The Problem
 
-Many citizens are unaware of government schem
+Many citizens are unaware of government sche
