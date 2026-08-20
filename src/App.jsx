@@ -7,9 +7,10 @@ import {
   AlertCircle, 
   CheckCircle2, 
   Volume2, 
-  VolumeX,
+  VolumeX, 
   Printer, 
   Layers,
+  Crown,
   Activity,
   Check,
   Headphones
@@ -23,6 +24,8 @@ import SchemeDetailModal from './components/SchemeDetailModal';
 import SchemeDirectory from './components/SchemeDirectory';
 import CscLocatorModal from './components/CscLocatorModal';
 import AnalyticsModal from './components/AnalyticsModal';
+import PricingModal from './components/PricingModal';
+import AutoFormFillModal from './components/AutoFormFillModal';
 import TeamModal from './components/TeamModal';
 import Footer from './components/Footer';
 
@@ -43,10 +46,16 @@ export default function App() {
   const [matchedSchemes, setMatchedSchemes] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
 
+  // Subscription / Premium State
+  const [isPremium, setIsPremium] = useState(true); // Default to active for live demo
+  const [isTrialActive, setIsTrialActive] = useState(true);
+
   // Modals & Audio
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
   const [isCscModalOpen, setIsCscModalOpen] = useState(false);
   const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+  const [autoFillScheme, setAutoFillScheme] = useState(null);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState(null);
 
@@ -157,7 +166,7 @@ export default function App() {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
 
-    // AUTOMATIC VOICE READOUT: Speak out the results automatically for illiterate citizens!
+    // AUTOMATIC VOICE READOUT for illiterate citizens
     setTimeout(() => {
       speechSynthesizer.speakResultsSummary(foundMatches, {
         onStart: (id) => setPlayingAudioId(id),
@@ -193,10 +202,13 @@ export default function App() {
       <Navbar
         onOpenCsc={() => setIsCscModalOpen(true)}
         onOpenAnalytics={() => setIsAnalyticsModalOpen(true)}
+        onOpenPricing={() => setIsPricingModalOpen(true)}
         onOpenTeam={() => setIsTeamModalOpen(true)}
         onOpenDirectory={() => setActiveTab('directory')}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        isPremium={isPremium}
+        isTrialActive={isTrialActive}
       />
 
       {/* Main Content Body */}
@@ -242,7 +254,7 @@ export default function App() {
                   {/* Matched Schemes Results Grid */}
                   <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
                     
-                    {/* Auto-Audio Notification Bar for Non-readers */}
+                    {/* Auto-Audio Notification Bar */}
                     {playingAudioId === 'results-summary' && (
                       <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/20 to-emerald-500/20 border-2 border-orange-500/40 flex items-center justify-between gap-3 shadow-xl animate-pulse">
                         <div className="flex items-center gap-3">
@@ -326,6 +338,35 @@ export default function App() {
           isPlayingAudio={playingAudioId === selectedSchemeDetail.id}
           onPlayAudio={handlePlayAudio}
           onStopAudio={handleStopAudio}
+          onOpenAutoFormFill={(s) => {
+            setSelectedSchemeDetail(null);
+            setAutoFillScheme(s);
+          }}
+        />
+      )}
+
+      {/* Auto Form Fill & Voice Assistant Modal */}
+      {autoFillScheme && (
+        <AutoFormFillModal
+          scheme={autoFillScheme}
+          onClose={() => setAutoFillScheme(null)}
+          isPremium={isPremium}
+        />
+      )}
+
+      {/* Pricing / Subscription Modal */}
+      {isPricingModalOpen && (
+        <PricingModal
+          onClose={() => setIsPricingModalOpen(false)}
+          isPremium={isPremium}
+          onActivateTrial={() => {
+            setIsPremium(true);
+            setIsTrialActive(true);
+          }}
+          onActivatePremium={() => {
+            setIsPremium(true);
+            setIsTrialActive(false);
+          }}
         />
       )}
 
@@ -347,6 +388,7 @@ export default function App() {
       {isTeamModalOpen && (
         <TeamModal
           onClose={() => setIsTeamModalOpen(false)}
+          onOpenPricing={() => setIsPricingModalOpen(true)}
         />
       )}
 

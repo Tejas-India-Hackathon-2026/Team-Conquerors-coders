@@ -11,7 +11,10 @@ import {
   FileCheck2, 
   CheckCircle2,
   HelpCircle,
-  PhoneCall
+  PhoneCall,
+  Mic,
+  Crown,
+  Sparkles
 } from 'lucide-react';
 
 export default function SchemeDetailModal({
@@ -19,7 +22,8 @@ export default function SchemeDetailModal({
   onClose,
   isPlayingAudio,
   onPlayAudio,
-  onStopAudio
+  onStopAudio,
+  onOpenAutoFormFill
 }) {
   const [checkedDocs, setCheckedDocs] = useState({});
 
@@ -73,12 +77,33 @@ export default function SchemeDetailModal({
           {scheme.name}
         </p>
 
+        {/* Voice Form Fill Banner */}
+        <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/15 to-emerald-500/20 border-2 border-orange-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+              <Crown className="w-4 h-4 text-amber-400" />
+              <span>प्रीमियम वॉयस फॉर्म असिस्टेंट (Auto-Fill)</span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-200 mt-0.5 font-semibold">
+              साइबर कैफे में ₹200 देने के बजाय घर बैठे आवाज़ से पूरा फॉर्म भरें।
+            </p>
+          </div>
+
+          <button
+            onClick={() => onOpenAutoFormFill(scheme)}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-md shadow-orange-500/20 hover:scale-105 transition-all"
+          >
+            <Mic className="w-4 h-4" />
+            <span>आवाज़ से फॉर्म भरें</span>
+          </button>
+        </div>
+
         {/* Audio Listen Bar */}
-        <div className="mt-4 p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+        <div className="mt-3 p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Volume2 className="w-5 h-5 text-orange-400" />
             <span className="text-xs sm:text-sm font-semibold text-slate-200">
-              योजना की पूरी जानकारी अपनी आवाज़ में सुनें:
+              योजना की पूरी जानकारी अपनी भाषा में सुनें:
             </span>
           </div>
           <button
@@ -96,7 +121,7 @@ export default function SchemeDetailModal({
             }`}
           >
             {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            <span>{isPlayingAudio ? 'रोकें (Stop)' : 'सुनिये (Play Audio)'}</span>
+            <span>{isPlayingAudio ? 'रोकें (Stop)' : 'सुनिये (Audio)'}</span>
           </button>
         </div>
 
@@ -110,16 +135,6 @@ export default function SchemeDetailModal({
           </div>
           <p className="text-xs sm:text-sm text-slate-200 mt-1 leading-relaxed">
             {scheme.benefitDetail}
-          </p>
-        </div>
-
-        {/* Who Qualifies */}
-        <div className="mb-5 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-            पात्रता (Who Qualifies):
-          </h4>
-          <p className="text-sm font-semibold text-slate-100">
-            {scheme.whoQualifies}
           </p>
         </div>
 
@@ -192,29 +207,14 @@ export default function SchemeDetailModal({
           </div>
         </div>
 
-        {/* CSC Help Box */}
-        {scheme.cscAssistance && (
-          <div className="mb-6 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 flex items-start gap-3">
-            <Building2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-            <div>
-              <h5 className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-                CSC / वसुधा केंद्र सहायता:
-              </h5>
-              <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
-                {scheme.cscAssistance}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Bottom Actions: Portal Link & WhatsApp Share */}
+        {/* Bottom Actions */}
         <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
           <button
             onClick={handleWhatsAppShare}
             className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all"
           >
             <Share2 className="w-4 h-4" />
-            <span>व्हाट्सएप पर शेयर करें (WhatsApp)</span>
+            <span>व्हाट्सएप पर शेयर करें</span>
           </button>
 
           <a
