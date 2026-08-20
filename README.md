@@ -193,4 +193,4 @@ Voice / Visual Response
 - **Speech Recognition** — Converts spoken input into text.
 - **AI Matching Engine** — Processes user information and matches relevant schemes.
 - **Scheme Data Layer** — Provides government scheme information.
-- **Eligibility Engine** — Evaluates whether schemes match
+- **Eligibility Engine** — Evaluates whether schemes
