@@ -175,4 +175,4 @@ User
 ↓
 Voice / Text Input
 ↓
-Speech Recognition & Input
+Speech
