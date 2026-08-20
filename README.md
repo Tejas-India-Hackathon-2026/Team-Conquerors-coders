@@ -170,4 +170,4 @@ v
 
 ### The Problem
 
-Many citizens are unaware of government schemes that could benefit
+Many citizens are unaware of government schemes that could
