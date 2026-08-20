@@ -198,4 +198,4 @@ Voice / Visual Response
 - **Scheme Details** — Displays detailed information about selected schemes.
 - **CSC Locator** — Helps users find nearby Common Service Centres.
 - **Analytics Module** — Tracks relevant application interactions.
-- **Responsive UI** — Provides an accessible experience
+- **Responsive UI** — Provides an accessible
