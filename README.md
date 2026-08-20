@@ -170,6 +170,3 @@ User
 Yojana Sathi follows a modular architecture designed to provide a simple voice-first experience for discovering and understanding government schemes.
 
 ### Architecture Flow
-
-User
-↓
