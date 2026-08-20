@@ -7,9 +7,10 @@ import {
   AlertCircle, 
   CheckCircle2, 
   Volume2, 
-  ArrowDownCircle, 
-  ShieldCheck, 
-  Layers 
+  Printer, 
+  Layers,
+  Activity,
+  Check
 } from 'lucide-react';
 
 import Navbar from './components/Navbar';
@@ -19,6 +20,7 @@ import SchemeCard from './components/SchemeCard';
 import SchemeDetailModal from './components/SchemeDetailModal';
 import SchemeDirectory from './components/SchemeDirectory';
 import CscLocatorModal from './components/CscLocatorModal';
+import AnalyticsModal from './components/AnalyticsModal';
 import TeamModal from './components/TeamModal';
 import Footer from './components/Footer';
 
@@ -42,8 +44,10 @@ export default function App() {
   // Modals & Audio
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
   const [isCscModalOpen, setIsCscModalOpen] = useState(false);
+  const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState(null);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const resultsRef = useRef(null);
 
@@ -94,7 +98,7 @@ export default function App() {
   };
 
   // Run AI Matching
-  const handleAnalyze = (textToAnalyze) => {
+  const handleAnalyze = async (textToAnalyze) => {
     const text = textToAnalyze || transcript;
     if (!text.trim()) return;
 
@@ -102,6 +106,40 @@ export default function App() {
     speechSynthesizer.stop();
     setPlayingAudioId(null);
 
+    // Try backend API first, fallback to client engine
+    try {
+      const apiRes = await fetch('/api/ai/match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript: text })
+      });
+
+      if (apiRes.ok) {
+        const json = await apiRes.json();
+        if (json.success && json.data) {
+          const clientProfile = extractProfileFromText(text);
+          setExtractedProfile({ ...json.data.profile, extractedTags: clientProfile.extractedTags });
+          setMatchedSchemes(json.data.matchedSchemes);
+          setHasSearched(true);
+          setIsAnalyzing(false);
+
+          if (json.data.matchedSchemes.length > 0) {
+            try {
+              confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+            } catch (e) {}
+          }
+
+          setTimeout(() => {
+            resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+          return;
+        }
+      }
+    } catch (err) {
+      // Fallback
+    }
+
+    // Client-side fallback
     setTimeout(() => {
       const profile = extractProfileFromText(text);
       const result = matchSchemes(profile, text);
@@ -111,24 +149,16 @@ export default function App() {
       setHasSearched(true);
       setIsAnalyzing(false);
 
-      // Trigger Confetti Celebration if matches found!
       if (result.matchedSchemes.length > 0) {
         try {
-          confetti({
-            particleCount: 80,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
-        } catch (e) {
-          // ignore if canvas blocked
-        }
+          confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        } catch (e) {}
       }
 
-      // Smooth scroll to results
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
-    }, 400);
+    }, 300);
   };
 
   // Audio Playback handler
@@ -147,12 +177,17 @@ export default function App() {
     setPlayingAudioId(null);
   };
 
+  const handlePrintSlip = () => {
+    window.print();
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#070b14] text-slate-100 font-sans selection:bg-orange-500 selection:text-white">
       
       {/* Navigation */}
       <Navbar
         onOpenCsc={() => setIsCscModalOpen(true)}
+        onOpenAnalytics={() => setIsAnalyticsModalOpen(true)}
         onOpenTeam={() => setIsTeamModalOpen(true)}
         onOpenDirectory={() => setActiveTab('directory')}
         activeTab={activeTab}
@@ -216,13 +251,23 @@ export default function App() {
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {matchedSchemes.length > 0 && (
+                          <button
+                            onClick={handlePrintSlip}
+                            className="text-xs font-bold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow"
+                          >
+                            <Printer className="w-4 h-4 text-emerald-400" />
+                            <span>पात्रता पर्ची प्रिंट करें (Print Slip)</span>
+                          </button>
+                        )}
+
                         <button
                           onClick={() => setActiveTab('directory')}
                           className="text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5"
                         >
                           <Layers className="w-4 h-4 text-orange-400" />
-                          <span>सभी 10+ योजनाएं देखें</span>
+                          <span>सभी 10+ योजनाएं</span>
                         </button>
                       </div>
                     </div>
@@ -283,6 +328,13 @@ export default function App() {
       {isCscModalOpen && (
         <CscLocatorModal
           onClose={() => setIsCscModalOpen(false)}
+        />
+      )}
+
+      {/* Analytics Modal */}
+      {isAnalyticsModalOpen && (
+        <AnalyticsModal
+          onClose={() => setIsAnalyticsModalOpen(false)}
         />
       )}
 
