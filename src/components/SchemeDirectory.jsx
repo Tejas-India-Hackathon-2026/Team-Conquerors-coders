@@ -1,5 +1,22 @@
 import React, { useState } from 'react';
-import { Search, Sparkles, Filter, Volume2, ArrowLeft } from 'lucide-react';
+import { 
+  Search, 
+  Sparkles, 
+  Filter, 
+  Volume2, 
+  ArrowLeft, 
+  SlidersHorizontal, 
+  Building2, 
+  Landmark, 
+  Layers, 
+  ArrowUpDown,
+  CheckCircle2,
+  Users,
+  Briefcase,
+  GraduationCap,
+  HeartPulse,
+  Scale
+} from 'lucide-react';
 import { SCHEMES_DATABASE, SCHEME_CATEGORIES } from '../data/schemes';
 import SchemeCard from './SchemeCard';
 
@@ -8,26 +25,62 @@ export default function SchemeDirectory({
   isPlayingAudio,
   onPlayAudio,
   onStopAudio,
-  onBackToVoice
+  onBackToVoice,
+  onOpenCompare
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all'); // 'all' | 'central' | 'state'
+  const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'benefit' | 'alpha'
+  const [beneficiaryFilter, setBeneficiaryFilter] = useState('all'); // 'all' | 'women' | 'kisan' | 'student' | 'elderly' | 'disability' | 'business' | 'laborer'
 
+  // Filter schemes
   const filteredSchemes = SCHEMES_DATABASE.filter(scheme => {
+    // 1. Category filter
     const matchesCategory = selectedCategory === 'all' || scheme.category === selectedCategory;
+    
+    // 2. Level filter (Central vs Bihar State)
+    const matchesLevel = selectedLevel === 'all' || scheme.level === selectedLevel;
+
+    // 3. Beneficiary filter
+    let matchesBeneficiary = true;
+    if (beneficiaryFilter === 'women') matchesBeneficiary = scheme.category === 'women' || scheme.eligibility?.gender === 'female';
+    if (beneficiaryFilter === 'kisan') matchesBeneficiary = scheme.category === 'kisan';
+    if (beneficiaryFilter === 'student') matchesBeneficiary = scheme.category === 'student';
+    if (beneficiaryFilter === 'elderly') matchesBeneficiary = scheme.category === 'elderly';
+    if (beneficiaryFilter === 'disability') matchesBeneficiary = scheme.category === 'disability' || scheme.eligibility?.disability_required;
+    if (beneficiaryFilter === 'business') matchesBeneficiary = scheme.category === 'business';
+    if (beneficiaryFilter === 'laborer') matchesBeneficiary = scheme.category === 'employment';
+
+    // 4. Search query
     const matchesSearch = 
       scheme.hindiName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       scheme.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       scheme.benefit.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      scheme.whoQualifies.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+      scheme.whoQualifies.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      scheme.tagline.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesLevel && matchesBeneficiary && matchesSearch;
+  });
+
+  // Sort schemes
+  filteredSchemes.sort((a, b) => {
+    if (sortBy === 'alpha') {
+      return a.hindiName.localeCompare(b.hindiName);
+    }
+    if (sortBy === 'benefit') {
+      // rough heuristic on number in benefit
+      const getNum = str => parseInt((str.match(/\d+/g) || ['0']).join(''), 10);
+      return getNum(b.benefit) - getNum(a.benefit);
+    }
+    return 0;
   });
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
-      {/* Header & Back Button */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      {/* Header & Back Navigation */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
           <button
             onClick={onBackToVoice}
@@ -36,11 +89,16 @@ export default function SchemeDirectory({
             <ArrowLeft className="w-4 h-4" />
             <span>← आवाज़ से खोजें (Back to Voice Search)</span>
           </button>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
-            सरकारी योजना डायरेक्टरी (Bihar & Central)
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+              सरकारी योजना डायरेक्टरी (myScheme 2.0)
+            </h2>
+            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+              {filteredSchemes.length} योजनाएं उपलब्ध
+            </span>
+          </div>
           <p className="text-sm text-slate-400 mt-1">
-            सत्यापित 10+ सरकारी योजनाओं की पूरी सूची, पात्रता और लाभ
+            बिहार सरकार एवं केंद्र सरकार की सभी योजनाओं की संपूर्ण, सत्यापित एवं आसान सूची
           </p>
         </div>
 
@@ -51,13 +109,74 @@ export default function SchemeDirectory({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="योजना का नाम या कीवर्ड खोजें..."
+            placeholder="योजना, लाभ या दस्तावेज खोजें..."
             className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all"
           />
         </div>
       </div>
 
-      {/* Category Pills */}
+      {/* Filter Row 1: State vs Central Selector + Sort Dropdown */}
+      <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-3xl mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        
+        {/* State / Central Level Switcher */}
+        <div className="flex items-center gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-2xl">
+          <button
+            onClick={() => setSelectedLevel('all')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              selectedLevel === 'all' ? 'bg-orange-500 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            सभी स्तर (All 40+)
+          </button>
+          <button
+            onClick={() => setSelectedLevel('state')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+              selectedLevel === 'state' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Landmark className="w-3.5 h-3.5" />
+            <span>बिहार राज्य सरकार</span>
+          </button>
+          <button
+            onClick={() => setSelectedLevel('central')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+              selectedLevel === 'central' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span>केंद्र सरकार (Central)</span>
+          </button>
+        </div>
+
+        {/* Beneficiary Quick Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+          {[
+            { id: 'all', label: 'सभी लाभार्थी' },
+            { id: 'women', label: '👩 महिला / बेटी' },
+            { id: 'kisan', label: '🌾 किसान' },
+            { id: 'student', label: '🎓 विद्यार्थी' },
+            { id: 'elderly', label: '👴 बुजुर्ग' },
+            { id: 'disability', label: '♿ दिव्यांगजन' },
+            { id: 'business', label: '💼 कारोबारी' },
+            { id: 'laborer', label: '🔨 मजदूर' }
+          ].map((b) => (
+            <button
+              key={b.id}
+              onClick={() => setBeneficiaryFilter(b.id)}
+              className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold whitespace-nowrap transition-all border ${
+                beneficiaryFilter === b.id
+                  ? 'bg-amber-500/20 border-amber-500 text-amber-300'
+                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {b.label}
+            </button>
+          ))}
+        </div>
+
+      </div>
+
+      {/* Category Pills (Horizontal Scroll) */}
       <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
         {SCHEME_CATEGORIES.map((cat) => (
           <button
@@ -66,7 +185,7 @@ export default function SchemeDirectory({
             className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
               selectedCategory === cat.id
                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/20'
-                : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                : 'bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-800'
             }`}
           >
             <span>{cat.label}</span>
@@ -74,10 +193,22 @@ export default function SchemeDirectory({
         ))}
       </div>
 
-      {/* Schemes Grid */}
+      {/* Schemes Cards Grid */}
       {filteredSchemes.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/50 border border-slate-800 rounded-3xl">
-          <p className="text-slate-400 text-sm">कोई योजना नहीं मिली। कृपया कोई अन्य शब्द खोजें।</p>
+        <div className="text-center py-16 bg-slate-900/50 border border-slate-800 rounded-3xl p-8">
+          <p className="text-slate-300 font-semibold text-base">इस फ़िल्टर में कोई योजना नहीं मिली।</p>
+          <p className="text-xs text-slate-500 mt-1">फ़िल्टर रीसेट करें या कोई अन्य कीवर्ड खोजें।</p>
+          <button
+            onClick={() => {
+              setSelectedCategory('all');
+              setSelectedLevel('all');
+              setBeneficiaryFilter('all');
+              setSearchQuery('');
+            }}
+            className="mt-4 px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs shadow"
+          >
+            सभी फ़िल्टर साफ़ करें (Reset Filters)
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
