@@ -174,11 +174,3 @@ Many citizens are unaware of government schemes that could benefit them. Finding
 ### Our Solution
 
 Yojana Sathi aims to simplify this process through a voice-first, AI-powered experience that helps citizens discover relevant government schemes using simple language.
-
-### Expected Impact
-
-- Make government scheme information easier to access.
-- Reduce the difficulty of finding relevant schemes.
-- Help users understand eligibility requirements.
-- Support users who are more comfortable with voice interaction.
-- Connect citizens with assistance points such as Common Service Centres.
