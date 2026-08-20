@@ -164,10 +164,3 @@ User
 → Eligibility Check
 → Scheme Details
 → Action / Assistance
-v
-
-## 🌍 Impact & Vision
-
-### The Problem
-
-Many citizens are unaware of governmen
