@@ -19,12 +19,12 @@ import { DEMO_PERSONAS } from '../data/personas';
 import { speechSynthesizer } from '../services/speechSynthesizer';
 
 const PERSONA_COLORS = {
-  kisan: 'border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-950',
-  student: 'border-blue-200 bg-blue-50/50 hover:bg-blue-50 text-blue-950',
-  women: 'border-rose-200 bg-rose-50/50 hover:bg-rose-50 text-rose-950',
-  business: 'border-purple-200 bg-purple-50/50 hover:bg-purple-50 text-purple-950',
-  elderly: 'border-amber-200 bg-amber-50/50 hover:bg-amber-50 text-amber-950',
-  laborer: 'border-cyan-200 bg-cyan-50/50 hover:bg-cyan-50 text-cyan-950'
+  kisan: 'border-emerald-500/30 bg-emerald-950/20 hover:border-emerald-400 hover:bg-emerald-950/40 text-emerald-300',
+  student: 'border-blue-500/30 bg-blue-950/20 hover:border-blue-400 hover:bg-blue-950/40 text-blue-300',
+  women: 'border-rose-500/30 bg-rose-950/20 hover:border-rose-400 hover:bg-rose-950/40 text-rose-300',
+  business: 'border-purple-500/30 bg-purple-950/20 hover:border-purple-400 hover:bg-purple-950/40 text-purple-300',
+  elderly: 'border-amber-500/30 bg-amber-950/20 hover:border-amber-400 hover:bg-amber-950/40 text-amber-300',
+  laborer: 'border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400 hover:bg-cyan-950/40 text-cyan-300'
 };
 
 export default function VoiceHero({
@@ -91,26 +91,26 @@ export default function VoiceHero({
       <div className="flex items-center justify-center gap-2 mb-6">
         <button
           onClick={handlePlayVoiceGuide}
-          className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold flex items-center gap-2.5 transition-all shadow-md ${
+          className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold flex items-center gap-2.5 transition-all shadow-xl backdrop-blur-md ${
             isSpeakingGuide
-              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white animate-pulse shadow-orange-500/30'
-              : 'bg-white hover:bg-orange-50 border border-orange-200 text-orange-800 hover:text-orange-900 shadow-sm hover:scale-105'
+              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white animate-pulse shadow-orange-500/40 ring-4 ring-orange-500/20'
+              : 'bg-slate-900/90 hover:bg-slate-800 border border-orange-500/30 text-orange-300 hover:text-white hover:border-orange-400 shadow-slate-950/80 hover:scale-105'
           }`}
         >
-          {isSpeakingGuide ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-orange-600 animate-bounce" />}
+          {isSpeakingGuide ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-orange-400 animate-bounce" />}
           <span>{isSpeakingGuide ? 'आवाज़ रोकें (Stop Voice Guide)' : '🔊 योजना साथी कैसे काम करता है? (आवाज़ में सुनें)'}</span>
         </button>
       </div>
 
-      {/* Main Official Clean Headline */}
-      <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 mb-4 leading-tight">
+      {/* Main Aurora Headline */}
+      <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white mb-4 leading-tight">
         "बोलिए अपनी भाषा में, <br className="hidden sm:inline" />
-        <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-emerald-700 bg-clip-text text-transparent">
+        <span className="aurora-gradient-text">
           AI बताएगा आपका सरकारी हक़
         </span>"
       </h1>
 
-      <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
+      <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
         लिखना या पढ़ना नहीं आता? कोई बात नहीं! बस नीचे बने बड़े माइक को दबाएं और अपनी भाषा में बोलें — <strong>AI स्वतः आपकी योजनाएं खोज देगा।</strong>
       </p>
 
@@ -118,13 +118,13 @@ export default function VoiceHero({
       <div className="flex flex-col items-center justify-center my-4">
         
         {/* Language Switcher Pill */}
-        <div className="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded-2xl mb-8 shadow-md">
+        <div className="flex items-center gap-1.5 p-1.5 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl mb-8 shadow-2xl">
           <button
             onClick={() => setSelectedLanguage('hi-IN')}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
               selectedLanguage === 'hi-IN'
-                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 scale-105'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/30 scale-105'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <span>🇮🇳 हिंदी / भोजपुरी / मैथिली</span>
@@ -133,8 +133,8 @@ export default function VoiceHero({
             onClick={() => setSelectedLanguage('en-IN')}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
               selectedLanguage === 'en-IN'
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 scale-105'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 scale-105'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <span>Hinglish / English</span>
@@ -147,9 +147,9 @@ export default function VoiceHero({
           {/* Ripples when active */}
           {isListening && (
             <>
-              <div className="mic-ripple-ring" />
-              <div className="mic-ripple-ring" />
-              <div className="mic-ripple-ring" />
+              <div className="mic-energy-ring" />
+              <div className="mic-energy-ring" />
+              <div className="mic-energy-ring" />
             </>
           )}
 
@@ -158,8 +158,8 @@ export default function VoiceHero({
             aria-label="Voice Input Button"
             className={`relative z-10 w-36 h-36 sm:w-44 sm:h-44 rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl cursor-pointer ${
               isListening
-                ? 'bg-gradient-to-tr from-orange-600 via-amber-500 to-emerald-600 scale-105 ring-8 ring-orange-500/20 shadow-[0_10px_40px_rgba(249,115,22,0.4)]'
-                : 'bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 border-4 border-white shadow-[0_12px_30px_rgba(249,115,22,0.35)] group hover:scale-105'
+                ? 'bg-gradient-to-tr from-orange-600 via-amber-500 to-emerald-500 scale-105 ring-8 ring-orange-500/30 shadow-[0_0_50px_rgba(249,115,22,0.6)]'
+                : 'bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 hover:from-slate-850 hover:to-orange-950/40 border-4 border-orange-500/40 hover:border-orange-400 group hover:scale-105 shadow-[0_10px_35px_rgba(0,0,0,0.8)]'
             }`}
           >
             {isListening ? (
@@ -171,10 +171,10 @@ export default function VoiceHero({
               </>
             ) : (
               <>
-                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-all mb-1">
-                  <Mic className="w-9 h-9 sm:w-10 sm:h-10 text-white" />
+                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-orange-500/10 flex items-center justify-center group-hover:bg-orange-500/20 transition-all mb-1">
+                  <Mic className="w-9 h-9 sm:w-10 sm:h-10 text-orange-400 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-extrabold text-slate-100 group-hover:text-white uppercase tracking-wider">
                   माइक दबाएं और बोलें
                 </span>
               </>
@@ -187,26 +187,26 @@ export default function VoiceHero({
           {isListening ? (
             <div className="flex flex-col items-center animate-in fade-in duration-300">
               <AudioVisualizer isActive={isListening} />
-              <p className="text-xs sm:text-sm text-emerald-800 font-extrabold mt-1.5 flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 px-4 py-1 rounded-full shadow-sm">
-                <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+              <p className="text-xs sm:text-sm text-emerald-400 font-extrabold mt-1.5 flex items-center gap-1.5 bg-emerald-950/70 border border-emerald-500/40 px-4 py-1 rounded-full shadow-lg">
+                <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
                 <span>आपकी आवाज़ सुनी जा रही है... बोलते ही स्वतः खोज हो जाएगी!</span>
               </p>
             </div>
           ) : (
-            <p className="text-xs sm:text-sm text-slate-500 font-semibold">
-              👉 <strong className="text-orange-700">बोलकर बताएं:</strong> "मैं किसान हूँ, 2 बीघा जमीन है" या "12वीं पास बेटी की स्कॉलरशिप"
+            <p className="text-xs sm:text-sm text-slate-400 font-medium">
+              👉 <strong className="text-orange-400">बोलकर बताएं:</strong> "मैं किसान हूँ, 2 बीघा जमीन है" या "12वीं पास बेटी की स्कॉलरशिप"
             </p>
           )}
         </div>
 
       </div>
 
-      {/* Spoken Text Transcript Box (Clean White Panel) */}
-      <div className="max-w-3xl mx-auto mt-2 mb-10 bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-7 text-left shadow-xl shadow-slate-200/50">
-        <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-100">
+      {/* Spoken Text Transcript Box (Frosted Glass Panel) */}
+      <div className="max-w-3xl mx-auto mt-2 mb-10 bg-slate-900/80 backdrop-blur-2xl border border-slate-700/80 rounded-3xl p-5 sm:p-7 text-left shadow-2xl shadow-black/60">
+        <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-700/80">
           <div className="flex items-center gap-2.5">
-            <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-emerald-500 animate-ping' : 'bg-orange-500'}`} />
-            <span className="text-xs sm:text-sm font-extrabold text-slate-900">
+            <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-emerald-400 animate-ping' : 'bg-orange-400'}`} />
+            <span className="text-xs sm:text-sm font-extrabold text-slate-200">
               {isListening ? '🎤 आप बोल रहे हैं (Live Voice Recognition)...' : '📝 आपकी बात (Spoken Voice Transcript):'}
             </span>
           </div>
@@ -214,7 +214,7 @@ export default function VoiceHero({
           {transcript && (
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-rose-200 shadow-sm"
+              className="text-xs font-bold text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-1.5 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700 hover:border-rose-500/50 shadow-sm"
             >
               <RefreshCw className="w-3.5 h-3.5" /> नया बोलें (Clear)
             </button>
@@ -227,23 +227,23 @@ export default function VoiceHero({
           onChange={(e) => setTranscript(e.target.value)}
           placeholder="माइक दबाकर बोलें... (जैसे ही बोलना बंद करेंगे, AI अपने आप खोज शुरू कर देगा)"
           rows={3}
-          className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm sm:text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all resize-none font-medium leading-relaxed"
+          className="w-full bg-slate-950/80 border border-slate-700/80 rounded-2xl p-4 text-sm sm:text-base text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all resize-none font-medium leading-relaxed"
         />
 
         {/* Action Button to Match */}
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-          <p className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
-            <Info className="w-4 h-4 text-orange-600 shrink-0" />
+          <p className="text-xs text-slate-400 flex items-center gap-1.5 font-medium">
+            <Info className="w-4 h-4 text-orange-400 shrink-0" />
             हिंदी, भोजपुरी, मगही, मैथिली — बोलते ही <strong>Auto-Search</strong> शुरू हो जाती है!
           </p>
 
           <button
             onClick={() => onAnalyze(transcript)}
             disabled={!transcript.trim() || isAnalyzing}
-            className={`w-full sm:w-auto px-8 py-3.5 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-md ${
+            className={`w-full sm:w-auto px-8 py-3.5 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-xl ${
               transcript.trim() && !isAnalyzing
-                ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-600 hover:from-orange-600 hover:to-emerald-700 text-white shadow-orange-500/20 hover:scale-[1.02] active:scale-95'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
+                ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-600 hover:from-orange-600 hover:to-emerald-700 text-white shadow-orange-500/30 hover:scale-[1.03] active:scale-95'
+                : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
             }`}
           >
             {isAnalyzing ? (
@@ -252,23 +252,23 @@ export default function VoiceHero({
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 text-white" /> योजनाएं खोजें (Find My Schemes)
+                <Sparkles className="w-4 h-4 text-amber-300" /> योजनाएं खोजें (Find My Schemes)
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Visual Persona Cards for Illiterate Citizens (Vibrant Pastel Tiles) */}
+      {/* Visual Persona Cards for Illiterate Citizens (Vibrant Frosted Tiles) */}
       <div className="max-w-4xl mx-auto text-left">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-orange-500" />
+            <span className="text-sm sm:text-base font-extrabold text-amber-400 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4" />
               बोलना नहीं चाहते? बस अपना चित्र कार्ड छूएं:
             </span>
           </div>
-          <span className="text-xs text-slate-600 font-bold hidden sm:inline bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+          <span className="text-xs text-slate-400 font-semibold hidden sm:inline bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
             1-Tap Voice Audio
           </span>
         </div>
@@ -276,28 +276,28 @@ export default function VoiceHero({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {DEMO_PERSONAS.map((persona) => {
             const isSelected = activePersonaId === persona.id;
-            const colorClass = PERSONA_COLORS[persona.id] || 'border-slate-200 bg-white';
+            const colorClass = PERSONA_COLORS[persona.id] || 'border-slate-800 bg-slate-900/60';
 
             return (
               <button
                 key={persona.id}
                 onClick={() => handleSelectPersona(persona)}
-                className={`p-4 rounded-3xl border-2 transition-all text-left flex flex-col justify-between group relative overflow-hidden gov-card ${colorClass} ${
-                  isSelected ? 'ring-4 ring-orange-500/30 scale-105 !border-orange-500 shadow-lg' : ''
+                className={`p-4 rounded-3xl border transition-all text-left flex flex-col justify-between group relative overflow-hidden aurora-card ${colorClass} ${
+                  isSelected ? 'ring-4 ring-orange-500/40 scale-105 !border-orange-500 shadow-xl shadow-orange-500/20' : ''
                 }`}
               >
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform">{persona.avatar}</span>
-                  <div className="w-7 h-7 rounded-full bg-white group-hover:bg-orange-500 group-hover:text-white text-slate-600 flex items-center justify-center transition-colors shadow-sm border border-slate-200/60">
+                  <div className="w-7 h-7 rounded-full bg-slate-800 group-hover:bg-orange-500 group-hover:text-white text-slate-400 flex items-center justify-center transition-colors shadow">
                     <Volume2 className="w-3.5 h-3.5" />
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-xs sm:text-sm font-black transition-colors">
+                  <div className="text-xs sm:text-sm font-extrabold text-slate-100 group-hover:text-orange-300 transition-colors">
                     {persona.nameHindi}
                   </div>
-                  <div className="text-[10px] opacity-75 font-semibold line-clamp-1 mt-0.5">
+                  <div className="text-[10px] text-slate-400 font-medium line-clamp-1 mt-0.5">
                     {persona.tagline}
                   </div>
                 </div>
