@@ -191,4 +191,4 @@ Voice / Visual Response
 
 - **Voice Interface** — Captures user queries through speech.
 - **Speech Recognition** — Converts spoken input into text.
-- **AI Matching Engine** — Processes user information and matches relevant
+- **AI Matching Engine** — Processes user information and
