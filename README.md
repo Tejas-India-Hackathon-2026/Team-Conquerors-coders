@@ -179,5 +179,3 @@ Speech Recognition & Input Processing
 ↓
 AI Matching Engine
 ↓
-Government Scheme Data
-↓
