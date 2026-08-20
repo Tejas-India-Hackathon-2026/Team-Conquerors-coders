@@ -2,7 +2,7 @@ import { SCHEMES_DATABASE } from '../data/schemes.js';
 
 /**
  * Advanced Bilingual (Hindi Devanagari + Hinglish) Profile Extractor & Deterministic Eligibility Engine
- * Schema-Driven, Zero-Hallucination, Multi-Category Inclusive
+ * Schema-Driven, Verified against a curated database of Bihar & Central government schemes
  */
 
 export function extractProfileFromText(text = '') {

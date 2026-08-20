@@ -12,11 +12,16 @@ import {
   Headphones,
   Info,
   Zap,
-  Radio
+  Radio,
+  AlertTriangle,
+  Lock,
+  ShieldCheck,
+  Globe
 } from 'lucide-react';
 import AudioVisualizer from './AudioVisualizer';
 import { DEMO_PERSONAS } from '../data/personas';
 import { speechSynthesizer } from '../services/speechSynthesizer';
+import { speechRecognizer } from '../services/speechRecognition';
 
 const PERSONA_COLORS = {
   kisan: 'border-emerald-500/30 bg-emerald-950/20 hover:border-emerald-400 hover:bg-emerald-950/40 text-emerald-300',
@@ -40,6 +45,7 @@ export default function VoiceHero({
 }) {
   const [activePersonaId, setActivePersonaId] = useState(null);
   const [isSpeakingGuide, setIsSpeakingGuide] = useState(false);
+  const isSpeechSupported = speechRecognizer.isSupported();
 
   const handleSelectPersona = (persona) => {
     setActivePersonaId(persona.id);
@@ -55,6 +61,11 @@ export default function VoiceHero({
   };
 
   const handleMicToggle = () => {
+    if (!isSpeechSupported) {
+      alert("Voice feature is browser mein available nahi hai, please Chrome use karein");
+      return;
+    }
+
     speechSynthesizer.stop();
     setIsSpeakingGuide(false);
     if (isListening) {
@@ -110,9 +121,20 @@ export default function VoiceHero({
         </span>"
       </h1>
 
-      <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
+      <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed font-medium">
         लिखना या पढ़ना नहीं आता? कोई बात नहीं! बस नीचे बने बड़े माइक को दबाएं और अपनी भाषा में बोलें — <strong>AI स्वतः आपकी योजनाएं खोज देगा।</strong>
       </p>
+
+      {/* Browser Compatibility Notice (if speech recognition is not supported in Firefox / Safari) */}
+      {!isSpeechSupported && (
+        <div className="max-w-2xl mx-auto mb-6 p-3.5 bg-amber-500/15 border border-amber-500/40 rounded-2xl flex items-center gap-3 text-left shadow-lg">
+          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+          <div className="text-xs sm:text-sm text-amber-200">
+            <span className="font-bold block text-white">वॉइस सपोर्ट सूचना (Browser Notice):</span>
+            Voice feature is browser mein available nahi hai, please Chrome use karein. आप नीचे दिए गए <strong>टेक्स्ट बॉक्स में लिखकर</strong> या <strong>चित्र कार्ड छूकर</strong> भी अपनी योजनाएं खोज सकते हैं।
+          </div>
+        </div>
+      )}
 
       {/* Large Voice Mic Pedestal */}
       <div className="flex flex-col items-center justify-center my-4">
@@ -159,7 +181,9 @@ export default function VoiceHero({
             className={`relative z-10 w-36 h-36 sm:w-44 sm:h-44 rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl cursor-pointer ${
               isListening
                 ? 'bg-gradient-to-tr from-orange-600 via-amber-500 to-emerald-500 scale-105 ring-8 ring-orange-500/30 shadow-[0_0_50px_rgba(249,115,22,0.6)]'
-                : 'bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 hover:from-slate-850 hover:to-orange-950/40 border-4 border-orange-500/40 hover:border-orange-400 group hover:scale-105 shadow-[0_10px_35px_rgba(0,0,0,0.8)]'
+                : isSpeechSupported
+                  ? 'bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 hover:from-slate-850 hover:to-orange-950/40 border-4 border-orange-500/40 hover:border-orange-400 group hover:scale-105 shadow-[0_10px_35px_rgba(0,0,0,0.8)]'
+                  : 'bg-slate-900 border-4 border-slate-700 opacity-80 cursor-pointer group hover:border-amber-400'
             }`}
           >
             {isListening ? (
@@ -169,13 +193,22 @@ export default function VoiceHero({
                   रोकें (Tap to Stop)
                 </span>
               </>
-            ) : (
+            ) : isSpeechSupported ? (
               <>
                 <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-orange-500/10 flex items-center justify-center group-hover:bg-orange-500/20 transition-all mb-1">
                   <Mic className="w-9 h-9 sm:w-10 sm:h-10 text-orange-400 group-hover:text-white transition-colors" />
                 </div>
                 <span className="text-xs sm:text-sm font-extrabold text-slate-100 group-hover:text-white uppercase tracking-wider">
                   माइक दबाएं और बोलें
+                </span>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-amber-500/10 flex items-center justify-center mb-1">
+                  <MicOff className="w-9 h-9 sm:w-10 sm:h-10 text-amber-400" />
+                </div>
+                <span className="text-[11px] font-bold text-amber-300 uppercase px-2 text-center">
+                  नीचे लिखकर खोजें
                 </span>
               </>
             )}
@@ -194,20 +227,28 @@ export default function VoiceHero({
             </div>
           ) : (
             <p className="text-xs sm:text-sm text-slate-400 font-medium">
-              👉 <strong className="text-orange-400">बोलकर बताएं:</strong> "मैं किसान हूँ, 2 बीघा जमीन है" या "12वीं पास बेटी की स्कॉलरशिप"
+              👉 <strong className="text-orange-400">बोलकर या लिखकर बताएं:</strong> "मैं किसान हूँ, 2 बीघा जमीन है" या "12वीं पास बेटी की स्कॉलरशिप"
             </p>
           )}
         </div>
 
       </div>
 
-      {/* Spoken Text Transcript Box (Frosted Glass Panel) */}
-      <div className="max-w-3xl mx-auto mt-2 mb-10 bg-slate-900/80 backdrop-blur-2xl border border-slate-700/80 rounded-3xl p-5 sm:p-7 text-left shadow-2xl shadow-black/60">
+      {/* 🔒 PRIVACY DISCLAIMER BANNER (Requirement 4) */}
+      <div className="max-w-3xl mx-auto mb-3 px-4 py-2 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-center gap-2 text-slate-400 text-xs shadow-sm">
+        <Lock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+        <span>
+          <strong>गोपनीयता सुरक्षा:</strong> आपकी बताई गई जानकारी (income, occupation, location) सिर्फ योजना मैचिंग के लिए उपयोग की जाती है और सुरक्षित रखी जाती है।
+        </span>
+      </div>
+
+      {/* Spoken / Typed Text Transcript Box (Frosted Glass Panel with Universal Fallback) */}
+      <div className="max-w-3xl mx-auto mb-10 bg-slate-900/80 backdrop-blur-2xl border border-slate-700/80 rounded-3xl p-5 sm:p-7 text-left shadow-2xl shadow-black/60">
         <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-700/80">
           <div className="flex items-center gap-2.5">
             <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-emerald-400 animate-ping' : 'bg-orange-400'}`} />
             <span className="text-xs sm:text-sm font-extrabold text-slate-200">
-              {isListening ? '🎤 आप बोल रहे हैं (Live Voice Recognition)...' : '📝 आपकी बात (Spoken Voice Transcript):'}
+              {isListening ? '🎤 आप बोल रहे हैं (Live Voice Recognition)...' : '📝 आपकी बात / विवरण (Spoken or Typed Text):'}
             </span>
           </div>
 
@@ -216,16 +257,19 @@ export default function VoiceHero({
               onClick={handleClear}
               className="text-xs font-bold text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-1.5 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700 hover:border-rose-500/50 shadow-sm"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> नया बोलें (Clear)
+              <RefreshCw className="w-3.5 h-3.5" /> नया लिखें / बोलें (Clear)
             </button>
           )}
         </div>
 
-        {/* Editable Transcript Textarea */}
+        {/* Editable / Typed Transcript Textarea (Works on ALL browsers) */}
         <textarea
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
-          placeholder="माइक दबाकर बोलें... (जैसे ही बोलना बंद करेंगे, AI अपने आप खोज शुरू कर देगा)"
+          placeholder={isSpeechSupported 
+            ? "माइक दबाकर बोलें या यहाँ लिखें... (जैसे: 'मैं 12वीं पास छात्रा हूँ' या 'किसान हूँ 2 बीघा जमीन')"
+            : "यहाँ लिखें... (जैसे: 'मैं 12वीं पास छात्रा हूँ' या 'किसान हूँ 2 बीघा जमीन')"
+          }
           rows={3}
           className="w-full bg-slate-950/80 border border-slate-700/80 rounded-2xl p-4 text-sm sm:text-base text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all resize-none font-medium leading-relaxed"
         />
@@ -234,7 +278,7 @@ export default function VoiceHero({
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
           <p className="text-xs text-slate-400 flex items-center gap-1.5 font-medium">
             <Info className="w-4 h-4 text-orange-400 shrink-0" />
-            हिंदी, भोजपुरी, मगही, मैथिली — बोलते ही <strong>Auto-Search</strong> शुरू हो जाती है!
+            हिंदी, भोजपुरी, मैथिली, English — <strong>सत्यापित सरकारी डेटाबेस</strong> पर आधारित खोज!
           </p>
 
           <button
@@ -242,7 +286,7 @@ export default function VoiceHero({
             disabled={!transcript.trim() || isAnalyzing}
             className={`w-full sm:w-auto px-8 py-3.5 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-xl ${
               transcript.trim() && !isAnalyzing
-                ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-600 hover:from-orange-600 hover:to-emerald-700 text-white shadow-orange-500/30 hover:scale-[1.03] active:scale-95'
+                ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-600 hover:from-orange-600 hover:to-emerald-700 text-white shadow-orange-500/30 hover:scale-[1.03] active:scale-95 cursor-pointer'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
             }`}
           >
@@ -265,11 +309,11 @@ export default function VoiceHero({
           <div className="flex items-center gap-2">
             <span className="text-sm sm:text-base font-extrabold text-amber-400 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4" />
-              बोलना नहीं चाहते? बस अपना चित्र कार्ड छूएं:
+              बोलना या लिखना नहीं चाहते? बस अपना चित्र कार्ड छूएं:
             </span>
           </div>
           <span className="text-xs text-slate-400 font-semibold hidden sm:inline bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
-            1-Tap Voice Audio
+            1-Tap Auto Finder
           </span>
         </div>
 
