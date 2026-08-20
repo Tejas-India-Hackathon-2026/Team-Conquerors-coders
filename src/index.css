@@ -5,14 +5,29 @@
 @layer base {
   body {
     font-family: 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif;
-    background-color: #060911;
-    color: #f8fafc;
+    background-color: #f8fafc;
+    color: #0f172a;
     overflow-x: hidden;
   }
 }
 
-/* Ambient Background Radial Glows */
-.ambient-bg-glow {
+/* Light Theme Ambient Glows */
+.ambient-bg-glow-light {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    radial-gradient(circle at 10% 10%, rgba(249, 115, 22, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 90% 15%, rgba(37, 99, 235, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.06) 0%, transparent 45%);
+}
+
+/* Dark Theme Ambient Glows */
+.ambient-bg-glow-dark {
   position: fixed;
   top: 0;
   left: 0;
@@ -26,63 +41,23 @@
     radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
 }
 
-/* Glassmorphic Cards & Panels */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
-}
-
-.glass-panel-glow {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(249, 115, 22, 0.25);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(249, 115, 22, 0.1);
-}
-
-.glass-card-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-card-hover:hover {
-  transform: translateY(-4px);
-  border-color: rgba(249, 115, 22, 0.45);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 25px 2px rgba(249, 115, 22, 0.15);
-}
-
-/* Animated Glowing Border */
-.gradient-border {
-  position: relative;
-  background: linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
-  background-size: 300% 300%;
-  animation: animatedgradient 6s ease alternate infinite;
-}
-
-@keyframes animatedgradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Custom Concentric Ripples for Voice Mic */
-.mic-ripple-ring {
+/* Concentric Ripples for Voice Mic */
+.mic-ripple-ring-light {
   position: absolute;
   border-radius: 9999px;
-  border: 2px solid rgba(249, 115, 22, 0.6);
-  animation: ripple-out 2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+  border: 2px solid rgba(249, 115, 22, 0.4);
+  animation: ripple-out-light 2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
 }
 
-.mic-ripple-ring:nth-child(2) {
+.mic-ripple-ring-light:nth-child(2) {
   animation-delay: 0.6s;
 }
 
-.mic-ripple-ring:nth-child(3) {
+.mic-ripple-ring-light:nth-child(3) {
   animation-delay: 1.2s;
 }
 
-@keyframes ripple-out {
+@keyframes ripple-out-light {
   0% {
     width: 100%;
     height: 100%;
@@ -90,35 +65,21 @@
     transform: scale(1);
   }
   100% {
-    width: 220%;
-    height: 220%;
+    width: 200%;
+    height: 200%;
     opacity: 0;
-    transform: scale(1.5);
+    transform: scale(1.4);
   }
 }
 
-/* Modern Shimmer Text */
-.shimmer-text {
-  background: linear-gradient(
-    to right,
-    #fbbf24 0%,
-    #f97316 20%,
-    #ffffff 40%,
-    #34d399 60%,
-    #f97316 80%,
-    #fbbf24 100%
-  );
-  background-size: 200% auto;
-  color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
-  animation: shine 4s linear infinite;
+/* Card Hover Elevation */
+.card-hover-clean {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes shine {
-  to {
-    background-position: 200% center;
-  }
+.card-hover-clean:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(249, 115, 22, 0.08);
 }
 
 /* Custom Scrollbar */
@@ -128,11 +89,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #090e17;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 

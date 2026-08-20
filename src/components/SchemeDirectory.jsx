@@ -26,23 +26,21 @@ export default function SchemeDirectory({
   onPlayAudio,
   onStopAudio,
   onBackToVoice,
-  onOpenCompare
+  onOpenCompare,
+  savedSchemeIds = [],
+  onToggleBookmark
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all'); // 'all' | 'central' | 'state'
   const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'benefit' | 'alpha'
-  const [beneficiaryFilter, setBeneficiaryFilter] = useState('all'); // 'all' | 'women' | 'kisan' | 'student' | 'elderly' | 'disability' | 'business' | 'laborer'
+  const [beneficiaryFilter, setBeneficiaryFilter] = useState('all');
 
   // Filter schemes
   const filteredSchemes = SCHEMES_DATABASE.filter(scheme => {
-    // 1. Category filter
     const matchesCategory = selectedCategory === 'all' || scheme.category === selectedCategory;
-    
-    // 2. Level filter (Central vs Bihar State)
     const matchesLevel = selectedLevel === 'all' || scheme.level === selectedLevel;
 
-    // 3. Beneficiary filter
     let matchesBeneficiary = true;
     if (beneficiaryFilter === 'women') matchesBeneficiary = scheme.category === 'women' || scheme.eligibility?.gender === 'female';
     if (beneficiaryFilter === 'kisan') matchesBeneficiary = scheme.category === 'kisan';
@@ -52,7 +50,6 @@ export default function SchemeDirectory({
     if (beneficiaryFilter === 'business') matchesBeneficiary = scheme.category === 'business';
     if (beneficiaryFilter === 'laborer') matchesBeneficiary = scheme.category === 'employment';
 
-    // 4. Search query
     const matchesSearch = 
       scheme.hindiName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       scheme.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -69,7 +66,6 @@ export default function SchemeDirectory({
       return a.hindiName.localeCompare(b.hindiName);
     }
     if (sortBy === 'benefit') {
-      // rough heuristic on number in benefit
       const getNum = str => parseInt((str.match(/\d+/g) || ['0']).join(''), 10);
       return getNum(b.benefit) - getNum(a.benefit);
     }
@@ -77,27 +73,27 @@ export default function SchemeDirectory({
   });
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left">
       
       {/* Header & Back Navigation */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
           <button
             onClick={onBackToVoice}
-            className="inline-flex items-center gap-2 text-xs font-bold text-orange-400 hover:text-orange-300 mb-2 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold text-orange-600 hover:text-orange-700 mb-2 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>← आवाज़ से खोजें (Back to Voice Search)</span>
           </button>
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+            <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
               सरकारी योजना डायरेक्टरी (myScheme 2.0)
             </h2>
-            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+            <span className="px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-extrabold shadow-sm">
               {filteredSchemes.length} योजनाएं उपलब्ध
             </span>
           </div>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             बिहार सरकार एवं केंद्र सरकार की सभी योजनाओं की संपूर्ण, सत्यापित एवं आसान सूची
           </p>
         </div>
@@ -110,20 +106,20 @@ export default function SchemeDirectory({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="योजना, लाभ या दस्तावेज खोजें..."
-            className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all"
+            className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-orange-500 shadow-sm transition-all"
           />
         </div>
       </div>
 
       {/* Filter Row 1: State vs Central Selector + Sort Dropdown */}
-      <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-3xl mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-4 bg-white border border-slate-200/90 rounded-3xl mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         
         {/* State / Central Level Switcher */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-2xl">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 border border-slate-200 rounded-2xl">
           <button
             onClick={() => setSelectedLevel('all')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              selectedLevel === 'all' ? 'bg-orange-500 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+              selectedLevel === 'all' ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             सभी स्तर (All 40+)
@@ -131,7 +127,7 @@ export default function SchemeDirectory({
           <button
             onClick={() => setSelectedLevel('state')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-              selectedLevel === 'state' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+              selectedLevel === 'state' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Landmark className="w-3.5 h-3.5" />
@@ -140,7 +136,7 @@ export default function SchemeDirectory({
           <button
             onClick={() => setSelectedLevel('central')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-              selectedLevel === 'central' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+              selectedLevel === 'central' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Building2 className="w-3.5 h-3.5" />
@@ -163,10 +159,10 @@ export default function SchemeDirectory({
             <button
               key={b.id}
               onClick={() => setBeneficiaryFilter(b.id)}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold whitespace-nowrap transition-all border ${
+              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all border shadow-sm ${
                 beneficiaryFilter === b.id
-                  ? 'bg-amber-500/20 border-amber-500 text-amber-300'
-                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-amber-100 border-amber-300 text-amber-900'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
               {b.label}
@@ -182,10 +178,10 @@ export default function SchemeDirectory({
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shadow-sm ${
               selectedCategory === cat.id
-                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/20'
-                : 'bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-800'
+                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
             <span>{cat.label}</span>
@@ -195,8 +191,8 @@ export default function SchemeDirectory({
 
       {/* Schemes Cards Grid */}
       {filteredSchemes.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/50 border border-slate-800 rounded-3xl p-8">
-          <p className="text-slate-300 font-semibold text-base">इस फ़िल्टर में कोई योजना नहीं मिली।</p>
+        <div className="text-center py-16 bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+          <p className="text-slate-800 font-bold text-base">इस फ़िल्टर में कोई योजना नहीं मिली।</p>
           <p className="text-xs text-slate-500 mt-1">फ़िल्टर रीसेट करें या कोई अन्य कीवर्ड खोजें।</p>
           <button
             onClick={() => {
@@ -205,7 +201,7 @@ export default function SchemeDirectory({
               setBeneficiaryFilter('all');
               setSearchQuery('');
             }}
-            className="mt-4 px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs shadow"
+            className="mt-4 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow"
           >
             सभी फ़िल्टर साफ़ करें (Reset Filters)
           </button>
@@ -220,6 +216,8 @@ export default function SchemeDirectory({
               onPlayAudio={onPlayAudio}
               onStopAudio={onStopAudio}
               onOpenDetails={onSelectScheme}
+              isSaved={savedSchemeIds.includes(scheme.id)}
+              onToggleBookmark={onToggleBookmark}
             />
           ))}
         </div>
