@@ -181,5 +181,4 @@ AI Matching Engine
 ↓
 Government Scheme Data
 ↓
-Eligibility & Recommendation
-↓
+Eligibility &
