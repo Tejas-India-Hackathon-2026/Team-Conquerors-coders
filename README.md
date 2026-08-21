@@ -152,4 +152,3 @@ User
 → Requirement Understanding
 → Scheme Matching
 → Eligibility Check
-→ Scheme
