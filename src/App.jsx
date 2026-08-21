@@ -38,6 +38,8 @@ import SavedSchemesModal from './components/SavedSchemesModal';
 import PanchayatFlyerModal from './components/PanchayatFlyerModal';
 import AiCopilotFloatingWidget from './components/AiCopilotFloatingWidget';
 import TeamModal from './components/TeamModal';
+import DocumentReadinessModal from './components/DocumentReadinessModal';
+import ApplicationTrackerModal from './components/ApplicationTrackerModal';
 import Footer from './components/Footer';
 
 import { speechRecognizer } from './services/speechRecognition.js';
@@ -100,6 +102,8 @@ export default function App() {
   const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
   const [isWizardModalOpen, setIsWizardModalOpen] = useState(false);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [isDocsModalOpen, setIsDocsModalOpen] = useState(false);
+  const [isTrackerModalOpen, setIsTrackerModalOpen] = useState(false);
   const [flyerScheme, setFlyerScheme] = useState(null);
   const [autoFillScheme, setAutoFillScheme] = useState(null);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
@@ -287,6 +291,8 @@ export default function App() {
         onOpenHelpline={() => setIsHelplineModalOpen(true)}
         onOpenWizard={() => setIsWizardModalOpen(true)}
         onOpenSaved={() => setIsSavedModalOpen(true)}
+        onOpenDocs={() => setIsDocsModalOpen(true)}
+        onOpenTracker={() => setIsTrackerModalOpen(true)}
         savedCount={savedSchemeIds.length}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -570,6 +576,26 @@ export default function App() {
       {isAnalyticsModalOpen && (
         <AnalyticsModal
           onClose={() => setIsAnalyticsModalOpen(false)}
+        />
+      )}
+
+      {/* Smart Document Readiness Checker Modal */}
+      {isDocsModalOpen && (
+        <DocumentReadinessModal
+          isOpen={isDocsModalOpen}
+          onClose={() => setIsDocsModalOpen(false)}
+          onSelectScheme={(scheme) => {
+            setSelectedSchemeDetail(scheme);
+            setIsDocsModalOpen(false);
+          }}
+        />
+      )}
+
+      {/* Live Application Status Tracker & Citizen FAQ Modal */}
+      {isTrackerModalOpen && (
+        <ApplicationTrackerModal
+          isOpen={isTrackerModalOpen}
+          onClose={() => setIsTrackerModalOpen(false)}
         />
       )}
 

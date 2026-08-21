@@ -1,5 +1,17 @@
 import React from 'react';
-import { Sparkles, MapPin, Users, BarChart3, Crown, ShieldAlert, Scale, SlidersHorizontal, Star } from 'lucide-react';
+import { 
+  Sparkles, 
+  MapPin, 
+  Users, 
+  BarChart3, 
+  Crown, 
+  ShieldAlert, 
+  Scale, 
+  SlidersHorizontal, 
+  Star,
+  FileCheck2,
+  Clock
+} from 'lucide-react';
 
 export default function Navbar({ 
   onOpenCsc, 
@@ -11,6 +23,8 @@ export default function Navbar({
   onOpenHelpline,
   onOpenWizard,
   onOpenSaved,
+  onOpenDocs,
+  onOpenTracker,
   savedCount = 0,
   activeTab, 
   setActiveTab,
@@ -56,13 +70,31 @@ export default function Navbar({
           {/* Navigation Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap justify-end">
             
+            {/* Smart Document Readiness Checker */}
+            <button
+              onClick={onOpenDocs}
+              className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
+            >
+              <FileCheck2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden md:inline">दस्तावेज़ चेकर</span>
+            </button>
+
+            {/* Application Status Tracker */}
+            <button
+              onClick={onOpenTracker}
+              className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-950/40 hover:bg-blue-900/60 text-blue-300 border border-blue-500/40 transition-all flex items-center gap-1.5 shadow-sm hover:scale-105"
+            >
+              <Clock className="w-3.5 h-3.5 text-blue-400" />
+              <span className="hidden md:inline">स्टेटस ट्रैकर</span>
+            </button>
+
             {/* 5-Step Finder Wizard */}
             <button
               onClick={onOpenWizard}
               className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition-all flex items-center gap-1.5 shadow-sm hover:border-amber-400 hover:scale-105"
             >
               <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden md:inline">स्मार्ट खोजक</span>
+              <span className="hidden lg:inline">स्मार्ट खोजक</span>
             </button>
 
             {/* Compare Tool */}
@@ -71,7 +103,7 @@ export default function Navbar({
               className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 transition-all flex items-center gap-1.5 shadow-sm hover:border-cyan-400 hover:scale-105"
             >
               <Scale className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden md:inline">योजना तुलना</span>
+              <span className="hidden xl:inline">तुलना</span>
             </button>
 
             {/* Saved Schemes */}
@@ -80,16 +112,7 @@ export default function Navbar({
               className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5 shadow-sm hover:border-amber-400"
             >
               <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span className="hidden sm:inline">सेव्ड ({savedCount})</span>
-            </button>
-
-            {/* Grievance & Helpline */}
-            <button
-              onClick={onOpenHelpline}
-              className="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900/90 hover:bg-slate-800 text-rose-300 border border-rose-500/30 transition-all flex items-center gap-1.5 shadow-sm hover:border-rose-400"
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-              <span className="hidden lg:inline">हेल्पलाइन</span>
+              <span>{savedCount > 0 ? savedCount : ''}</span>
             </button>
 
             {/* Pricing / Premium Upgrade */}
@@ -115,7 +138,7 @@ export default function Navbar({
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">{activeTab === 'directory' ? 'होम' : 'सभी 40+ योजनाएं'}</span>
+              <span className="hidden sm:inline">{activeTab === 'directory' ? 'होम' : 'सभी 45+ योजनाएं'}</span>
             </button>
 
             {/* Team / Pitch */}
