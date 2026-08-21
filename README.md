@@ -137,4 +137,4 @@ The AI matching system compares the user's needs with available government schem
 
 Relevant eligibility information is presented so the user can understand whether a scheme may apply to them.
 
-### 6. Explore
+### 6.
