@@ -112,3 +112,45 @@ Voice / Visual Response
 - **CSC Locator** — Helps users find nearby Common Service Centres.
 - **Analytics Module** — Tracks relevant application interactions.
 - **Responsive UI** — Provides an accessible experience across devices.
+
+## 👤 User Journey
+
+Yojana Sathi is designed to make government schemes easier to discover and understand.
+
+### 1. Start
+
+The user opens Yojana Sathi and interacts with the voice-first interface.
+
+### 2. Tell Your Need
+
+The user can describe their requirement using voice or available input options.
+
+### 3. Understand the User
+
+The application processes the user's information and identifies relevant requirements.
+
+### 4. Find Relevant Schemes
+
+The AI matching system compares the user's needs with available government schemes.
+
+### 5. Check Eligibility
+
+Relevant eligibility information is presented so the user can understand whether a scheme may apply to them.
+
+### 6. Explore Scheme Details
+
+The user can open a scheme to view its important information and requirements.
+
+### 7. Take the Next Step
+
+The user can use the available information and support features, including the CSC locator where applicable.
+
+### User Flow
+
+User
+→ Voice / Text Input
+→ Requirement Understanding
+→ Scheme Matching
+→ Eligibility Check
+→ Scheme Details
+→ Action / Assistance
