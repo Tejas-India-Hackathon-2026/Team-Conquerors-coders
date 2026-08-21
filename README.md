@@ -139,4 +139,4 @@ Relevant eligibility information is presented so the user can understand whether
 
 ### 6. Explore Scheme Details
 
-The user can open a
+The user can
