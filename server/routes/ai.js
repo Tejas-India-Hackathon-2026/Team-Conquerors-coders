@@ -93,6 +93,10 @@ function extractProfile(text = '') {
   } else if (/बेरोजगार|रोजगार|काम सीखने|berojgar|unemployed|job seeker/i.test(lower)) {
     profile.occupation = 'unemployed';
     profile.tags.push('पेशा: बेरोजगार युवा');
+  } else if (/सीनियर|सिटीजन|वरिष्ठ|बुजुर्ग|वृद्ध|वृद्धा|वृद्धजन|पेंशन|बूढ़े|senior|citizen|elderly|old age|vridha|bujurg/i.test(lower)) {
+    profile.occupation = 'elderly';
+    if (!profile.age) profile.age = 65;
+    profile.tags.push('वर्ग: वरिष्ठ नागरिक (Senior Citizen / 60+)');
   }
 
   // Education

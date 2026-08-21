@@ -114,10 +114,11 @@ export function extractProfileFromText(text = '') {
     profile.occupation = 'unemployed';
     profile.needs.push('skill_training', 'business_loan');
     profile.extractedTags.push('पेशा: बेरोजगार युवा / रोजगार तलाश');
-  } else if (profile.age >= 60 || /पेंशन|बुजुर्ग|pension|bujurg/i.test(lower)) {
+  } else if (profile.age >= 60 || /सीनियर|सिटीजन|वरिष्ठ|बुजुर्ग|वृद्ध|वृद्धा|वृद्धजन|पेंशन|बूढ़े|दादा|दादी|नाना|नानी|senior|citizen|elderly|old age|vridha|bujurg|pension/i.test(lower)) {
     profile.occupation = 'elderly';
-    profile.needs.push('pension');
-    profile.extractedTags.push('वर्ग: वरिष्ठ नागरिक (60+)');
+    if (!profile.age) profile.age = 65;
+    profile.needs.push('pension', 'senior_care');
+    profile.extractedTags.push('वर्ग: वरिष्ठ नागरिक (Senior Citizen / 60+)');
   }
 
   // 6. EDUCATION LEVEL (Bilingual)
@@ -359,7 +360,7 @@ export function matchSchemes(profile, rawTranscript = '') {
         }
       }
     } else {
-      if (crit.min_age >= 60 && !/पेंशन|बुजुर्ग|वृद्ध|बूढ़े|pension|bujurg|vridha|buddha|senior/i.test(lower)) {
+      if (crit.min_age >= 60 && !/सीनियर|सिटीजन|वरिष्ठ|बुजुर्ग|वृद्ध|वृद्धा|वृद्धजन|पेंशन|बूढ़े|दादा|दादी|नाना|नानी|senior|citizen|elderly|old age|vridha|bujurg|pension/i.test(lower)) {
         isDisqualified = true;
       }
       if (crit.max_age <= 10 && !/सुकन्या|बेटी|शिशु|बच्ची|sukanya|beti|shishu|bachi|newborn/i.test(lower)) {
@@ -525,6 +526,14 @@ export function matchSchemes(profile, rawTranscript = '') {
       score += 40;
       matchReasons.push('₹10 लाख मुख्यमंत्री उद्यमी स्वरोजगार वित्तीय सहायता');
     }
+    if ((scheme.id === 'vridhavastha-pension' || scheme.category === 'elderly') && (profile.occupation === 'elderly' || profile.needs.includes('pension') || profile.needs.includes('senior_care') || /सीनियर|सिटीजन|वरिष्ठ|बुजुर्ग|वृद्ध|senior|citizen|elderly|pension/i.test(lower))) {
+      score += 75;
+      matchReasons.push('वरिष्ठ नागरिक (60+) आजीवन सामाजिक सुरक्षा मासिक पेंशन');
+    }
+    if (scheme.id === 'rashtriya-vayoshri' && (profile.occupation === 'elderly' || /सीनियर|सिटीजन|बुजुर्ग|वृद्ध|लाठी|चश्मा|senior|citizen|elderly/i.test(lower))) {
+      score += 65;
+      matchReasons.push('वरिष्ठ नागरिकों को मुफ्त चश्मा, लाठी, व्हीलचेयर व श्रवण यंत्र');
+    }
     if (scheme.id === 'pm-kaushal-vikas' && (profile.occupation === 'unemployed' || /काम सीखने|ट्रेनिंग|स्किल/i.test(lower))) {
       score += 40;
       matchReasons.push('प्रधानमंत्री कौशल विकास योजना मुफ्त ट्रेनिंग व सर्टिफिकेट');
@@ -560,16 +569,32 @@ export function matchSchemes(profile, rawTranscript = '') {
 
   matched.sort((a, b) => b.matchScore - a.matchScore);
 
-  // If no strict matches were found (e.g. user said only 1-2 words or greetings),
-  // return top flagship welfare schemes with helpful recommendation reasons instead of empty screen
+  // If no strict matches were found, use demographic-aware diverse fallback
   if (matched.length === 0) {
-    const fallbackSchemes = SCHEMES_DATABASE.slice(0, 6).map((scheme, idx) => ({
+    let candidateSchemes = [];
+    if (profile.occupation === 'elderly' || /सीनियर|सिटीजन|बुजुर्ग|वृद्ध|senior/i.test(lower)) {
+      candidateSchemes = SCHEMES_DATABASE.filter(s => s.category === 'elderly' || s.id === 'ayushman-bharat');
+    } else if (profile.disability_status || /दिव्यांग|विकलांग|disab|wheelchair/i.test(lower)) {
+      candidateSchemes = SCHEMES_DATABASE.filter(s => s.category === 'disability' || s.id === 'ayushman-bharat');
+    } else if (profile.occupation === 'student' || /छात्र|पढ़ाई|student/i.test(lower)) {
+      candidateSchemes = SCHEMES_DATABASE.filter(s => s.category === 'student' || s.category === 'youth');
+    } else if (profile.gender === 'female' || /महिला|बेटी|कन्या/i.test(lower)) {
+      candidateSchemes = SCHEMES_DATABASE.filter(s => s.category === 'women' || s.category === 'student');
+    }
+
+    if (candidateSchemes.length === 0) {
+      // Return truly diverse flagship cross-demographic schemes
+      const diverseIds = ['vridhavastha-pension', 'kanya-utthan', 'adip-divyang-appliances', 'student-credit-card', 'ayushman-bharat', 'pm-kisan'];
+      candidateSchemes = SCHEMES_DATABASE.filter(s => diverseIds.includes(s.id));
+    }
+
+    const fallbackSchemes = candidateSchemes.slice(0, 6).map((scheme, idx) => ({
       ...scheme,
-      matchScore: 65 - idx * 3,
+      matchScore: 70 - idx * 3,
       matchStatus: 'RECOMMENDED',
-      matchBadge: 'लोकप्रिय सरकारी योजना (Top Scheme)',
+      matchBadge: 'प्रमुख अनुशंसित योजना (Recommended)',
       matchColor: 'text-amber-400 border-amber-500/40 bg-amber-500/10',
-      reasons: ['बिहार एवं केंद्र सरकार की शीर्ष कल्याणकारी योजना — अधिक सटीक पात्रता के लिए अपना पेशा (जैसे किसान, छात्रा, मजदूर) बोलें']
+      reasons: ['आपकी श्रेणी (पेशा / जरूरत) के आधार पर पहचानी गई प्रमुख सरकारी योजना']
     }));
 
     if (!profile.extractedTags || profile.extractedTags.length === 0) {
