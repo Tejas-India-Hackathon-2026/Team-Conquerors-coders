@@ -139,6 +139,4 @@ Relevant eligibility information is presented so the user can understand whether
 
 ### 6. Explore Scheme Details
 
-The user can open a scheme to view its important information and requirements.
-
-### 7.
+The user can open a scheme to view its important information and
