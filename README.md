@@ -136,5 +136,3 @@ The AI matching system compares the user's needs with available government schem
 ### 5. Check Eligibility
 
 Relevant eligibility information is presented so the user can understand whether a scheme may apply to them.
-
-### 6.
