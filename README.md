@@ -143,4 +143,4 @@ The user can open a scheme to view its important information and requirements.
 
 ### 7. Take the Next Step
 
-The user can use the available information and support features, including the CSC locator where applicable.
+The user can use the available information and support features, including the CSC locator where
