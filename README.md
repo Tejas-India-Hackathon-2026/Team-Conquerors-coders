@@ -76,4 +76,4 @@ npm run dev
 - **Build Tool:** Vite 6
 - **Voice Engine:** Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition` + `SpeechSynthesis`)
 - **Intelligence:** Hybrid Rule Engine + Google Gemini AI Backend Proxy
-- **Deployment Ready:** Vercel / Netlify / GitHub Page
+- **Deployment Ready:** Vercel / Netlify / GitHub Pages
