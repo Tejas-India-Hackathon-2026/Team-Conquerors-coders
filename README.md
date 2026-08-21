@@ -150,4 +150,3 @@ The user can use the available information and support features, including the C
 User
 → Voice / Text Input
 → Requirement Understanding
-→ Scheme
