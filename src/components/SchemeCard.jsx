@@ -169,24 +169,36 @@ export default function SchemeCard({
       </div>
 
       {/* Action Buttons */}
-      <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2.5">
+      <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2">
         <button
           onClick={() => onOpenDetails(scheme)}
-          className="flex-1 py-3 px-4 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-100 font-extrabold text-xs flex items-center justify-center gap-2 transition-all border border-slate-700/80 hover:border-slate-600 shadow-md group-hover:bg-gradient-to-r group-hover:from-orange-500/20 group-hover:to-amber-500/20"
+          className="flex-1 py-3 px-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-100 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-700/80 hover:border-slate-600 shadow-md group-hover:bg-gradient-to-r group-hover:from-orange-500/20 group-hover:to-amber-500/20"
         >
-          <FileText className="w-4 h-4 text-orange-400" />
-          <span>पूरी जानकारी व कागज</span>
-          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+          <FileText className="w-3.5 h-3.5 text-orange-400" />
+          <span>विवरण व गाइड</span>
+          <ArrowRight className="w-3 h-3 text-slate-400 group-hover:translate-x-1 transition-transform" />
         </button>
+
+        <a
+          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(scheme.hindiName + ' online apply kaise kare bihar')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="p-3 rounded-2xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white transition-all border border-rose-500/30 shadow-sm"
+          title="यूट्यूब पर वीडियो देखें"
+        >
+          <span className="text-xs font-black">▶️</span>
+        </a>
 
         <a
           href={scheme.officialLink}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           className="p-3 rounded-2xl bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white transition-all border border-orange-500/30 shadow-sm"
           title="सरकारी पोर्टल पर जाएं"
         >
-          <ExternalLink className="w-4 h-4" />
+          <ExternalLink className="w-3.5 h-3.5" />
         </a>
       </div>
 
