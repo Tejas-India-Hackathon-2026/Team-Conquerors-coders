@@ -2,7 +2,7 @@
  * Web Speech API Voice Recognition Service
  * Robust, resilient speech-to-text with auto-restart on speech pauses,
  * non-destructive cumulative word capture, Hindi/Bhojpuri/Maithili normalization,
- * and reliable silence auto-trigger.
+ * and reliable 1.5s silence auto-stop & auto-search trigger.
  */
 
 export class SpeechRecognitionService {
@@ -73,17 +73,25 @@ export class SpeechRecognitionService {
           });
         }
 
-        // Reset Silence Timer for 1.8s Auto Search
+        // Reset Silence Timer for 1.5s Snappy Auto Stop & Search
         if (this.silenceTimer) {
           clearTimeout(this.silenceTimer);
         }
 
         if (combined.length >= 3) {
           this.silenceTimer = setTimeout(() => {
-            if (this.isListening && this.onSilenceAutoSearchCallback) {
-              this.onSilenceAutoSearchCallback(combined);
+            if (this.isListening) {
+              const fullText = (this.finalTranscriptHistory + ' ' + currentSessionFinal + ' ' + this.interimTranscript)
+                .replace(/\s+/g, ' ')
+                .trim();
+              
+              this.stop(); // Stop the mic immediately!
+
+              if (this.onSilenceAutoSearchCallback && fullText.length >= 2) {
+                this.onSilenceAutoSearchCallback(fullText);
+              }
             }
-          }, 1800);
+          }, 1500);
         }
       };
 
