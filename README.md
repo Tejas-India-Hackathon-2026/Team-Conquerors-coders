@@ -134,5 +134,3 @@ The application processes the user's information and identifies relevant require
 The AI matching system compares the user's needs with available government schemes.
 
 ### 5. Check Eligibility
-
-Relevant
