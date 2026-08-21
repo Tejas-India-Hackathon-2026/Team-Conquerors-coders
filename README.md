@@ -148,4 +148,4 @@ The user can use the available information and support features, including the C
 ### User Flow
 
 User
-→ Voice / Text Input
+→ Voice /
