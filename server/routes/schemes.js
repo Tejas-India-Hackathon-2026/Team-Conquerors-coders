@@ -1,5 +1,5 @@
 import express from 'express';
-import { SCHEMES_DATABASE } from '../data/schemes.js';
+import { SCHEMES_DATABASE } from '../../src/data/schemes.js';
 
 const router = express.Router();
 const schemesData = SCHEMES_DATABASE;
