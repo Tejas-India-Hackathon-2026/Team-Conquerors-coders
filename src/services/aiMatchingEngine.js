@@ -171,7 +171,35 @@ export function extractProfileFromText(text = '') {
     profile.extractedTags.push('राशन कार्ड: उपलब्ध (BPL / अंत्योदय)');
   }
 
-  // 11. LOCATION TYPE (RURAL / URBAN) (Bilingual)
+  // 11. FERTILIZER, SEEDS, CROP DAMAGE & IRRIGATION
+  if (/खाद|उर्वरक|यूरिया|डीएपी|पोटाश|नैनो यूरिया|गोबर खाद|केंचुआ खाद|वर्मीकंपोस्ट|fertilizer|urea|dap|potash|khad|urvarak|vermicompost/i.test(lower)) {
+    if (profile.occupation === 'any') profile.occupation = 'farmer';
+    profile.needs.push('fertilizer_subsidy');
+    profile.extractedTags.push('आवश्यकता: खाद / उर्वरक सब्सिडी (यूरिया / DAP)');
+  }
+  if (/बीज|धान का बीज|गेहूं का बीज|मक्का का बीज|उन्नत बीज|seed|seeds|beej/i.test(lower)) {
+    if (profile.occupation === 'any') profile.occupation = 'farmer';
+    profile.needs.push('seed_subsidy');
+    profile.extractedTags.push('आवश्यकता: प्रमाणित बीज अनुदान (BRBN)');
+  }
+  if (/फसल नुकसान|फसल बर्बाद|फसल क्षति|बाढ़|सूखा|सुखाड़|ओलावृष्टि|कीड़ा|crop damage|crop loss|drought|flood|fasal kshati|fasal nuksan/i.test(lower)) {
+    if (profile.occupation === 'any') profile.occupation = 'farmer';
+    profile.crop_damage = true;
+    profile.needs.push('crop_insurance');
+    profile.extractedTags.push('फसल स्थिति: फसल नुकसान / सुखाड़ सहायता');
+  }
+  if (/सोलर पंप|सोलर पैनल|सौर ऊर्जा|कुसुम|solar pump|solar panel|kusum/i.test(lower)) {
+    if (profile.occupation === 'any') profile.occupation = 'farmer';
+    profile.needs.push('solar_pump');
+    profile.extractedTags.push('सिंचाई: सोलर पंप सब्सिडी (PM-KUSUM)');
+  }
+  if (/डीजल|सिंचाई|पटवन|पंपसेट|diesel|irrigation|patwan/i.test(lower)) {
+    if (profile.occupation === 'any') profile.occupation = 'farmer';
+    profile.needs.push('diesel_subsidy');
+    profile.extractedTags.push('सिंचाई: डीजल अनुदान / पटवन');
+  }
+
+  // 12. LOCATION TYPE (RURAL / URBAN) (Bilingual)
   if (/शहर|नगर|वार्ड|नगर निगम|नगर परिषद|shahar|city|town|nagar|ward|municipality|patna shahar|muzaffarpur town/i.test(lower)) {
     profile.location_type = 'urban';
     profile.extractedTags.push('क्षेत्र: शहरी (Urban)');
@@ -441,6 +469,30 @@ export function matchSchemes(profile, rawTranscript = '') {
     // ==========================================
     // 10. SPECIFIC NEED & KEYWORD BOOSTS
     // ==========================================
+    if (scheme.id === 'pm-fertilizer-subsidy' && (profile.needs.includes('fertilizer_subsidy') || /खाद|उर्वरक|यूरिया|डीएपी|fertilizer|urea|dap|khad|urvarak/i.test(lower))) {
+      score += 65;
+      matchReasons.push('यूरिया व डीएपी खाद पर 70% तक भारी सरकारी सब्सिडी (₹266 व ₹1,350/बोरी)');
+    }
+    if (scheme.id === 'pkvy-organic-fertilizer' && (profile.needs.includes('fertilizer_subsidy') || /जैविक|केंचुआ|गोबर खाद|organic|vermicompost/i.test(lower))) {
+      score += 55;
+      matchReasons.push('जैविक खेती व केंचुआ खाद (वर्मीकंपोस्ट) निर्माण हेतु ₹50,000/हेक्टेयर अनुदान');
+    }
+    if (scheme.id === 'bihar-beej-anudan' && (profile.needs.includes('seed_subsidy') || /बीज|धान|गेहूं|मक्का|seed|beej/i.test(lower))) {
+      score += 60;
+      matchReasons.push('प्रमाणित धान, गेहूं, मक्का व दलहन बीज पर 50% से 90% सरकारी सब्सिडी (BRBN)');
+    }
+    if (scheme.id === 'pm-fasal-bima' && (profile.crop_damage || profile.needs.includes('crop_insurance') || /नुकसान|बर्बाद|क्षति|बाढ़|सूखा|suward|flood|drought|bima|fasal/i.test(lower))) {
+      score += 60;
+      matchReasons.push('फसल नुकसान/सुखाड़ पर ₹10,000/हेक्टेयर तक सीधा सरकारी मुआवजा');
+    }
+    if (scheme.id === 'pm-kusum-solar-pump' && (profile.needs.includes('solar_pump') || /सोलर|सौर|सोलर पंप|solar|kusum/i.test(lower))) {
+      score += 60;
+      matchReasons.push('खेतों में सोलर सिंचाई पंप लगाने हेतु 60% से 90% सरकारी अनुदान');
+    }
+    if (scheme.id === 'bihar-diesel-subsidy' && (profile.needs.includes('diesel_subsidy') || /डीजल|सिंचाई|पटवन|diesel/i.test(lower))) {
+      score += 55;
+      matchReasons.push('सिंचाई हेतु डीजल पर ₹750/एकड़ सरकारी अनुदान');
+    }
     if (scheme.id === 'ayushman-bharat' && (profile.needs.includes('health_treatment') || profile.has_ration_card || /इलाज|अस्पताल|दवा|hospital|ilaj/i.test(lower))) {
       score += 45;
       matchReasons.push('मुफ्त एवं कैशलेस अस्पताल चिकित्सा उपचार की आवश्यकता');

@@ -234,6 +234,184 @@ export const SCHEMES_DATABASE = [
     verified: true,
     audioExplanationHindi: "ड्रिप और फव्वारा सिंचाई सिस्टम लगाने के लिए सरकार अस्सी प्रतिशत तक की भारी छूट यानी सब्सिडी देती है।"
   },
+  {
+    scheme_id: "pm-fertilizer-subsidy",
+    id: "pm-fertilizer-subsidy",
+    name: "PM Fertilizer Subsidy Scheme & PMKSK",
+    hindiName: "प्रधानमंत्री उर्वरक (खाद) सब्सिडी योजना व किसान समृद्धि केंद्र",
+    tagline: "यूरिया, डीएपी (DAP) व पोटाश पर भारी सरकारी छूट — यूरिया ₹266/बोरी व DAP ₹1,350/बोरी",
+    category: "kisan",
+    categoryLabel: "उर्वरक एवं खाद सब्सिडी",
+    level: "central",
+    badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+    icon: "Wheat",
+    benefit: "उर्वरक खरीद पर 70% तक प्रत्यक्ष सरकारी सब्सिडी (यूरिया ₹266 व DAP ₹1,350)",
+    benefitDetail: "सरकार प्रति बोरी यूरिया पर लगभग ₹2,000 और DAP पर लगभग ₹2,500 की सब्सिडी सीधे विनिर्माताओं को देती है ताकि किसान को बेहद सस्ती दर पर खाद मिले।",
+    whoQualifies: "भारत व बिहार के सभी किसान (रैयत, बटाईदार व सीमांत किसान)",
+    eligibility: {
+      min_age: 18,
+      max_age: 100,
+      gender: "any",
+      occupations: ["farmer", "kisan", "bataidar", "agriculture"],
+      income_max: null,
+      social_category: ["general", "sc", "st", "obc", "ebc", "minority", "any"],
+      land_required: false,
+      disability_required: false,
+      location: ["rural", "urban", "any"],
+      education_level: "any",
+      marital_status: "any",
+      other_conditions: ["Purchasing for genuine farming purpose with Aadhaar authentication at POS machine"]
+    },
+    documentsRequired: [
+      "आधार कार्ड (Aadhaar Card)",
+      "किसान पंजीकरण संख्या (DBT Agriculture)",
+      "आधार लिंक मोबाइल नंबर (POS बायोमेट्रिक हेतु)"
+    ],
+    applySteps: [
+      "नजदीकी अधिकृत खाद विक्रेता (PACS / PM किसान समृद्धि केंद्र / IFFCO केंद्र) पर जाएं।",
+      "पीओएस (POS) मशीन पर अपना आधार कार्ड और अंगूठे का निशान (बायोमेट्रिक) लगाएं।",
+      "सब्सीडाइज्ड सरकारी दर पर यूरिया, डीएपी और नैनो यूरिया प्राप्त करें।"
+    ],
+    official_source_url: "https://fert.gov.in",
+    officialLink: "https://fert.gov.in",
+    last_verified: "2026-02-01",
+    verified: true,
+    audioExplanationHindi: "पीएम उर्वरक योजना में किसानों को यूरिया और डीएपी खाद पर भारी सरकारी सब्सिडी मिलती है, जिससे खाद बहुत कम दामों पर उपलब्ध होती है।"
+  },
+  {
+    scheme_id: "pkvy-organic-fertilizer",
+    id: "pkvy-organic-fertilizer",
+    name: "Paramparagat Krishi Vikas Yojana (PKVY)",
+    hindiName: "परंपरागत कृषि विकास योजना (जैविक खाद व वर्मीकंपोस्ट अनुदान)",
+    tagline: "जैविक खेती, गोबर खाद व केंचुआ खाद (Vermicompost) हेतु ₹50,000/हेक्टेयर सहायता",
+    category: "kisan",
+    categoryLabel: "जैविक खाद एवं कृषि",
+    level: "central",
+    badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+    icon: "Wheat",
+    benefit: "₹50,000 प्रति हेक्टेयर (3 वर्षों में)",
+    benefitDetail: "₹31,000 (62%) जैविक खाद, केंचुआ खाद (वर्मीकंपोस्ट), बायो-पेस्टिसाइड और बीज खरीद हेतु किसान के बैंक खाते में DBT द्वारा।",
+    whoQualifies: "प्राकृतिक / जैविक खेती करने वाले किसान व किसान उत्पादक समूह (FPO/क्लस्टर)",
+    eligibility: {
+      min_age: 18,
+      max_age: 100,
+      gender: "any",
+      occupations: ["farmer", "kisan", "agriculture"],
+      income_max: null,
+      social_category: ["general", "sc", "st", "obc", "ebc", "minority", "any"],
+      land_required: true,
+      disability_required: false,
+      location: ["rural", "any"],
+      education_level: "any",
+      marital_status: "any",
+      other_conditions: ["Willing to adopt organic farming practices and PGS-India certification"]
+    },
+    documentsRequired: [
+      "किसान पंजीकरण (DBT Agriculture)",
+      "जमीन के दस्तावेज / एलपीसी",
+      "आधार कार्ड व बैंक पासबुक",
+      "जैविक क्लस्टर सदस्यता सहमति पत्र"
+    ],
+    applySteps: [
+      "pgsindia-ncof.gov.in या प्रखंड कृषि पदाधिकारी (BAO) कार्यालय में आवेदन करें।",
+      "जैविक क्लस्टर में शामिल होकर जैविक खाद व वर्मीकंपोस्ट बेड की स्थापना करें।",
+      "सत्यापन उपरांत अनुदान सीधे बैंक खाते में जमा होगा।"
+    ],
+    official_source_url: "https://pgsindia-ncof.gov.in",
+    officialLink: "https://pgsindia-ncof.gov.in",
+    last_verified: "2026-01-20",
+    verified: true,
+    audioExplanationHindi: "परंपरागत कृषि विकास योजना में जैविक खेती और केंचुआ खाद बनाने के लिए सरकार पचास हजार रुपये प्रति हेक्टेयर की सहायता देती है।"
+  },
+  {
+    scheme_id: "bihar-beej-anudan",
+    id: "bihar-beej-anudan",
+    name: "Bihar Mukhyamantri Teevra Beej Vistar Yojana (BRBN)",
+    hindiName: "मुख्यमंत्री तीव्र बीज विस्तार एवं बीज अनुदान योजना (बिहार)",
+    tagline: "उन्नत धान, गेहूं, मक्का, दलहन व तेलहन के प्रमाणित बीजों पर 50% से 100% सब्सिडी",
+    category: "kisan",
+    categoryLabel: "बीज सब्सिडी",
+    level: "state",
+    badgeColor: "bg-teal-500/10 text-teal-400 border-teal-500/30",
+    icon: "Wheat",
+    benefit: "प्रमाणित बीजों पर 50% से 90% तक सरकारी अनुदान (Home Delivery उपलब्ध)",
+    benefitDetail: "प्रत्येक राजस्व ग्राम में चयनित किसानों को आधार बीज पर 90% अनुदान तथा सामान्य किसानों को 50% अनुदानित दर पर प्रमाणित बीज।",
+    whoQualifies: "बिहार के सभी किसान जो खरीफ, रबी और गरमा फसलों की खेती करते हैं",
+    eligibility: {
+      min_age: 18,
+      max_age: 100,
+      gender: "any",
+      occupations: ["farmer", "kisan", "agriculture"],
+      income_max: null,
+      social_category: ["general", "sc", "st", "obc", "ebc", "minority", "any"],
+      land_required: true,
+      disability_required: false,
+      location: ["rural", "any"],
+      education_level: "any",
+      marital_status: "any",
+      other_conditions: ["Valid DBT Bihar Agriculture Farmer Registration Number required"]
+    },
+    documentsRequired: [
+      "किसान पंजीकरण संख्या (13 डिजिट DBT Registration)",
+      "आधार कार्ड",
+      "मोबाइल नंबर (OTP सत्यापन हेतु)"
+    ],
+    applySteps: [
+      "brbn.bihar.gov.in पोर्टल पर जाएं।",
+      "'बीज अनुदान आवेदन' पर क्लिक करके अपनी फसल (धान/गेहूं/मक्का/सरसों) चुनें।",
+      "OTP सत्यापन के बाद अपने नजदीकी बीज केंद्र या होम डिलीवरी से सब्सिडी बीज प्राप्त करें।"
+    ],
+    official_source_url: "https://brbn.bihar.gov.in",
+    officialLink: "https://brbn.bihar.gov.in",
+    last_verified: "2026-02-01",
+    verified: true,
+    audioExplanationHindi: "बिहार बीज अनुदान योजना में किसानों को उच्च गुणवत्ता वाले धान, गेहूं और दलहन के बीज पचास से नब्बे प्रतिशत छूट पर मिलते हैं।"
+  },
+  {
+    scheme_id: "pm-kusum-solar-pump",
+    id: "pm-kusum-solar-pump",
+    name: "PM-KUSUM Solar Pump Yojana",
+    hindiName: "पीएम कुसुम सोलर पंप योजना (मुफ्त सिंचाई व बिजली)",
+    tagline: "खेतों में सोलर सिंचाई पंप लगाने पर 60% से 90% सरकारी सब्सिडी — डीजल के खर्च से हमेशा के लिए मुक्ति",
+    category: "kisan",
+    categoryLabel: "कृषि सौर ऊर्जा",
+    level: "central",
+    badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    icon: "Sun",
+    benefit: "सोलर पंप लागत पर 60% से 90% सब्सिडी (किसान को केवल 10% - 40% देना होता है)",
+    benefitDetail: "2 HP से 7.5 HP के स्टैंडअलोन सोलर पंप पर केंद्र सरकार (30%) + राज्य सरकार (30%-60%) सब्सिडी प्रदान करती है।",
+    whoQualifies: "कृषि भूमि व बोरवेल/तालाब जल स्रोत वाले व्यक्तिगत किसान, जल उपभोक्ता संघ व FPO",
+    eligibility: {
+      min_age: 18,
+      max_age: 100,
+      gender: "any",
+      occupations: ["farmer", "kisan", "agriculture"],
+      income_max: null,
+      social_category: ["general", "sc", "st", "obc", "ebc", "minority", "any"],
+      land_required: true,
+      disability_required: false,
+      location: ["rural", "any"],
+      education_level: "any",
+      marital_status: "any",
+      other_conditions: ["Borewell/water source available on farm, non-electrified or grid-tied pump setup"]
+    },
+    documentsRequired: [
+      "जमीन के कागजात (खतियान / LPC / रसीद)",
+      "आधार कार्ड व बैंक पासबुक",
+      "किसान पंजीकरण रसीद",
+      "पासपोर्ट साइज फोटो"
+    ],
+    applySteps: [
+      "pmkusum.mnre.gov.in या breda.bih.nic.in पोर्टल पर ऑनलाइन आवेदन करें।",
+      "पंप क्षमता (HP) चुनें और आवश्यक दस्तावेज अपलोड करें।",
+      "अनुमोदन उपरांत किसान अंशदान जमा करें, जिसके बाद कंपनी खेत में सोलर पंप स्थापित करती है।"
+    ],
+    official_source_url: "https://pmkusum.mnre.gov.in",
+    officialLink: "https://pmkusum.mnre.gov.in",
+    last_verified: "2026-01-25",
+    verified: true,
+    audioExplanationHindi: "पीएम कुसुम योजना में खेतों में सोलर पंप लगाने पर साठ से नब्बे प्रतिशत तक सरकारी सब्सिडी मिलती है, जिससे बिना बिजली या डीजल के मुफ्त सिंचाई होती है।"
+  },
 
   // ==========================================
   // 2. HEALTH & MEDICAL INSURANCE (स्वास्थ्य एवं चिकित्सा)
