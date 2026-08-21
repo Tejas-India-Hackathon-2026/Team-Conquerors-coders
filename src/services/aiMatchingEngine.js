@@ -508,6 +508,29 @@ export function matchSchemes(profile, rawTranscript = '') {
 
   matched.sort((a, b) => b.matchScore - a.matchScore);
 
+  // If no strict matches were found (e.g. user said only 1-2 words or greetings),
+  // return top flagship welfare schemes with helpful recommendation reasons instead of empty screen
+  if (matched.length === 0) {
+    const fallbackSchemes = SCHEMES_DATABASE.slice(0, 6).map((scheme, idx) => ({
+      ...scheme,
+      matchScore: 65 - idx * 3,
+      matchStatus: 'RECOMMENDED',
+      matchBadge: 'लोकप्रिय सरकारी योजना (Top Scheme)',
+      matchColor: 'text-amber-400 border-amber-500/40 bg-amber-500/10',
+      reasons: ['बिहार एवं केंद्र सरकार की शीर्ष कल्याणकारी योजना — अधिक सटीक पात्रता के लिए अपना पेशा (जैसे किसान, छात्रा, मजदूर) बोलें']
+    }));
+
+    if (!profile.extractedTags || profile.extractedTags.length === 0) {
+      profile.extractedTags = ['सामान्य नागरिक (General Citizen)', 'बिहार / भारत निवासी'];
+    }
+
+    return {
+      profile,
+      matchedSchemes: fallbackSchemes,
+      totalMatched: fallbackSchemes.length
+    };
+  }
+
   return {
     profile,
     matchedSchemes: matched,

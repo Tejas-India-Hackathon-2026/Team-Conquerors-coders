@@ -1,8 +1,8 @@
 /**
  * Web Speech API Voice Recognition Service
  * Robust, resilient speech-to-text with auto-restart on speech pauses,
- * clean fresh start per session, Hindi/Bhojpuri/Maithili dialect normalization,
- * and comprehensive browser compatibility fallback.
+ * non-destructive cumulative word capture, Hindi/Bhojpuri/Maithili normalization,
+ * and reliable silence auto-trigger.
  */
 
 export class SpeechRecognitionService {
@@ -10,7 +10,7 @@ export class SpeechRecognitionService {
     this.recognition = null;
     this.isListening = false;
     this.language = 'hi-IN';
-    this.accumulatedTranscript = '';
+    this.finalTranscriptHistory = '';
     this.interimTranscript = '';
     this.onResultCallback = null;
     this.onErrorCallback = null;
@@ -30,7 +30,6 @@ export class SpeechRecognitionService {
     if (typeof window === 'undefined') return;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      console.warn('Speech recognition is not supported in this browser (window.SpeechRecognition or window.webkitSpeechRecognition not found).');
       return;
     }
 
@@ -47,49 +46,48 @@ export class SpeechRecognitionService {
       };
 
       this.recognition.onresult = (event) => {
-        let finalSegment = '';
+        let currentSessionFinal = '';
         let currentInterim = '';
 
         for (let i = 0; i < event.results.length; ++i) {
-          const item = event.results[i];
-          if (item.isFinal) {
-            finalSegment += item[0].transcript + ' ';
+          const res = event.results[i];
+          if (res.isFinal) {
+            currentSessionFinal += res[0].transcript + ' ';
           } else {
-            currentInterim += item[0].transcript;
+            currentInterim += res[0].transcript;
           }
         }
 
         this.interimTranscript = currentInterim;
-        
-        const fullText = (this.accumulatedTranscript + ' ' + finalSegment + ' ' + currentInterim)
+
+        // Build clean unified transcript
+        const combined = (this.finalTranscriptHistory + ' ' + currentSessionFinal + ' ' + currentInterim)
           .replace(/\s+/g, ' ')
           .trim();
 
         if (this.onResultCallback) {
           this.onResultCallback({
-            final: (this.accumulatedTranscript + ' ' + finalSegment).trim(),
+            final: (this.finalTranscriptHistory + ' ' + currentSessionFinal).trim(),
             interim: currentInterim,
-            combined: fullText
+            combined: combined
           });
         }
 
-        // Reset Silence Timer for Auto Search
+        // Reset Silence Timer for 1.8s Auto Search
         if (this.silenceTimer) {
           clearTimeout(this.silenceTimer);
         }
 
-        // If user has spoken at least 6 characters, set auto-search timer on 2.0s of silence
-        if (fullText.length >= 6) {
+        if (combined.length >= 3) {
           this.silenceTimer = setTimeout(() => {
             if (this.isListening && this.onSilenceAutoSearchCallback) {
-              this.onSilenceAutoSearchCallback(fullText);
+              this.onSilenceAutoSearchCallback(combined);
             }
-          }, 2000);
+          }, 1800);
         }
       };
 
       this.recognition.onerror = (event) => {
-        console.warn('Speech recognition error:', event?.error);
         if (event?.error === 'no-speech') return;
         if (event?.error === 'not-allowed' || event?.error === 'service-not-allowed') {
           this.isListening = false;
@@ -101,9 +99,10 @@ export class SpeechRecognitionService {
 
       this.recognition.onend = () => {
         if (this.isListening) {
+          // If browser closed connection automatically during pause, save history and restart seamlessly
           try {
             if (this.interimTranscript) {
-              this.accumulatedTranscript = (this.accumulatedTranscript + ' ' + this.interimTranscript).trim();
+              this.finalTranscriptHistory = (this.finalTranscriptHistory + ' ' + this.interimTranscript).trim();
               this.interimTranscript = '';
             }
             this.recognition.start();
@@ -150,7 +149,7 @@ export class SpeechRecognitionService {
     }
 
     if (resetFresh) {
-      this.accumulatedTranscript = '';
+      this.finalTranscriptHistory = '';
       this.interimTranscript = '';
     }
 
@@ -168,7 +167,7 @@ export class SpeechRecognitionService {
       this.isListening = true;
       this.recognition.start();
     } catch (e) {
-      console.warn('Recognition start error:', e);
+      // Already running or starting
     }
   }
 
@@ -186,7 +185,7 @@ export class SpeechRecognitionService {
 
   reset() {
     this.stop();
-    this.accumulatedTranscript = '';
+    this.finalTranscriptHistory = '';
     this.interimTranscript = '';
   }
 }

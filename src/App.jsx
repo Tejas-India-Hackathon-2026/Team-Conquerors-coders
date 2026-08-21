@@ -150,16 +150,18 @@ export default function App() {
       resetFresh: true,
       onResult: ({ combined }) => {
         setTranscript(combined);
+        latestTranscriptRef.current = combined;
       },
       onStart: () => setIsListening(true),
       onEnd: () => {
         setIsListening(false);
-        if (latestTranscriptRef.current && latestTranscriptRef.current.trim().length >= 4) {
-          handleAnalyze(latestTranscriptRef.current);
+        const text = latestTranscriptRef.current;
+        if (text && text.trim().length >= 2) {
+          handleAnalyze(text);
         }
       },
       onSilenceAutoSearch: (silenceText) => {
-        if (silenceText && silenceText.trim().length >= 4) {
+        if (silenceText && silenceText.trim().length >= 2) {
           speechRecognizer.stop();
           setIsListening(false);
           handleAnalyze(silenceText);
@@ -173,8 +175,9 @@ export default function App() {
   const handleStopListening = () => {
     speechRecognizer.stop();
     setIsListening(false);
-    if (transcript && transcript.trim().length >= 3) {
-      handleAnalyze(transcript);
+    const textToSearch = latestTranscriptRef.current || transcript;
+    if (textToSearch && textToSearch.trim().length >= 2) {
+      handleAnalyze(textToSearch);
     }
   };
 
