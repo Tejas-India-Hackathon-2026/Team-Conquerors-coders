@@ -52,11 +52,11 @@ function extractProfile(text = '') {
     profile.tags.push('लिंग: पुरुष');
   }
 
-  // Disability
-  if (/दिव्यांग|विकलांग|अपाहिज|divyang|viklang|handicapped|disability|udid|wheelchair/i.test(lower)) {
+  // Disability / Divyangjan / Special Needs
+  if (/दिव्यांग|विकलांग|अपाहिज|अंध|बहरा|गूंगा|व्हीलचेयर|ट्राईसाइकिल|यूडीआईडी|कृत्रिम अंग|चलने में असमर्थ|disab|physically|handicap|special need|paralysis|wheelchair|tricycle|udid|blind|deaf/i.test(lower)) {
     profile.disability_status = true;
     profile.needs.push('disability_support');
-    profile.tags.push('विशेष श्रेणी: दिव्यांगजन (Divyangjan)');
+    profile.tags.push('विशेष श्रेणी: दिव्यांगजन (Physically Challenged / Divyang)');
   }
 
   // Social Category

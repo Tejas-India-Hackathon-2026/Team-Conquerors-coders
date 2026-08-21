@@ -64,11 +64,11 @@ export function extractProfileFromText(text = '') {
     profile.extractedTags.push('लिंग: पुरुष');
   }
 
-  // 3. DISABILITY (DIVYANGJAN) EXTRACTION (Bilingual)
-  if (/दिव्यांग|विकलांग|अपाहिज|अंधे|बहरा|गूंगा|व्हीलचेयर|ट्राईसाइकिल|यूडीआईडी|कृत्रिम अंग|divyang|viklang|handicapped|disability|chalne me dikkat|andhe|blind|behra|deaf|mute|udid|artificial limb|tricycle|wheelchair|cerebral palsy|autism/i.test(lower)) {
+  // 3. DISABILITY (DIVYANGJAN / SPECIAL NEEDS) EXTRACTION (Bilingual)
+  if (/दिव्यांग|विकलांग|अपाहिज|अंध|बहरा|गूंगा|व्हीलचेयर|ट्राईसाइकिल|यूडीआईडी|कृत्रिम अंग|चलने में असमर्थ|पैर खराब|हाथ खराब|आंख से दिखता नहीं|सुनाई नहीं देता|पैरालिसिस|लंगड़ा|disab|physically|handicap|special need|paralysis|chalne me dikkat|andhe|blind|behra|deaf|mute|udid|artificial limb|tricycle|wheelchair|cerebral palsy|autism|locomotor/i.test(lower)) {
     profile.disability_status = true;
     profile.needs.push('disability_support');
-    profile.extractedTags.push('विशेष श्रेणी: दिव्यांगजन (Divyangjan)');
+    profile.extractedTags.push('विशेष श्रेणी: दिव्यांगजन (Physically Challenged / Divyang)');
   }
 
   // 4. SOCIAL CATEGORY & MINORITY EXTRACTION (Bilingual)
@@ -253,9 +253,9 @@ export function matchSchemes(profile, rawTranscript = '') {
     // 1. DISABILITY CRITERION CHECK (Strict)
     // ==========================================
     if (crit.disability_required === true) {
-      if (profile.disability_status === true || /दिव्यांग|विकलांग|अपाहिज|divyang|viklang|handicapped/i.test(lower)) {
-        score += 55;
-        matchReasons.push('दिव्यांगता श्रेणी (Disability Welfare) के अंतर्गत विशेष पात्र');
+      if (profile.disability_status === true || /दिव्यांग|विकलांग|अपाहिज|disab|physically|handicap|wheelchair/i.test(lower)) {
+        score += 65;
+        matchReasons.push('दिव्यांगता श्रेणी (Disability Welfare) के अंतर्गत विशेष पात्र — 100% निःशुल्क उपकरण व मासिक पेंशन');
       } else {
         isDisqualified = true;
       }

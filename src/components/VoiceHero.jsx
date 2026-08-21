@@ -24,6 +24,12 @@ import { speechSynthesizer } from '../services/speechSynthesizer';
 import { speechRecognizer } from '../services/speechRecognition';
 
 const PERSONA_COLORS = {
+  'divyang-welfare': 'border-purple-500/40 bg-purple-950/30 hover:border-purple-400 hover:bg-purple-950/50 text-purple-300',
+  'farmer-jamui': 'border-emerald-500/30 bg-emerald-950/20 hover:border-emerald-400 hover:bg-emerald-950/40 text-emerald-300',
+  'student-girl': 'border-blue-500/30 bg-blue-950/20 hover:border-blue-400 hover:bg-blue-950/40 text-blue-300',
+  'senior-citizen': 'border-amber-500/30 bg-amber-950/20 hover:border-amber-400 hover:bg-amber-950/40 text-amber-300',
+  'youth-entrepreneur': 'border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400 hover:bg-cyan-950/40 text-cyan-300',
+  'poor-housing': 'border-rose-500/30 bg-rose-950/20 hover:border-rose-400 hover:bg-rose-950/40 text-rose-300',
   kisan: 'border-emerald-500/30 bg-emerald-950/20 hover:border-emerald-400 hover:bg-emerald-950/40 text-emerald-300',
   student: 'border-blue-500/30 bg-blue-950/20 hover:border-blue-400 hover:bg-blue-950/40 text-blue-300',
   women: 'border-rose-500/30 bg-rose-950/20 hover:border-rose-400 hover:bg-rose-950/40 text-rose-300',
