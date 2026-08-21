@@ -1,19 +1,16 @@
 import express from 'express';
-import schemesData from '../data/schemes.json' assert { type: 'json' };
+import { SCHEMES_DATABASE } from '../data/schemes.js';
 
 const router = express.Router();
+const schemesData = SCHEMES_DATABASE;
 
-// Helper to extract complete multi-field citizen profile from text (Bilingual)
-function extractProfile(text = '') {
-  const lower = text.toLowerCase().trim();
+// Profile Extractor Helper
+function extractProfile(transcript = '') {
+  const lower = transcript.toLowerCase();
   const profile = {
     age: null,
     gender: 'unspecified',
-    location_type: 'any',
-    district: null,
     occupation: 'any',
-    income_level: null,
-    estimated_income: null,
     social_category: 'any',
     disability_status: false,
     marital_status: 'any',
@@ -21,61 +18,58 @@ function extractProfile(text = '') {
     has_land: false,
     has_ration_card: false,
     has_pucca_house: null,
+    location_type: 'any',
     needs: [],
-    tags: [],
-    suggestedFollowUps: []
+    tags: []
   };
 
-  if (!lower) return profile;
-
-  // Age extraction
-  const ageMatch = lower.match(/(\d{1,2})\s*(?:साल|वर्ष|उम्र|बरस|saal|sal|varsh|years|umar|age)/i);
+  // Age
+  const ageMatch = lower.match(/(\d{1,2})\s*(?:साल|वर्ष|उम्र|बरस|years|age|umar)/i);
   if (ageMatch && ageMatch[1]) {
     profile.age = parseInt(ageMatch[1], 10);
     profile.tags.push(`उम्र: ${profile.age} वर्ष`);
-  } else if (/बुजुर्ग|बूढ़े|वृद्ध|वरिष्ठ|bujurg|buddhe|vridha|senior/i.test(lower)) {
-    profile.age = 65;
-    profile.tags.push('उम्र: 60+ (वरिष्ठ नागरिक)');
   }
 
-  // Gender & Marital Status
-  if (/विधवा|पति नहीं|widow|vidhwa|patidev guzar gaye/i.test(lower)) {
+  // Gender & Marital
+  if (/विधवा|widow|vidhwa/i.test(lower)) {
     profile.gender = 'female';
     profile.marital_status = 'widow';
-    profile.tags.push('स्थिति: विधवा महिला (Widow)');
-  } else if (/लड़की|महिला|औरत|छात्रा|बेटी|कन्या|ladki|beti|mahila|aurat|female/i.test(lower)) {
+    profile.tags.push('स्थिति: विधवा महिला');
+  } else if (/लड़की|महिला|औरत|छात्रा|बेटी|कन्या|female|woman|girl|ladki/i.test(lower)) {
     profile.gender = 'female';
     profile.tags.push('लिंग: महिला / छात्रा');
-    if (/अविवाहित|कुंवारी|unmarried|avivahit/i.test(lower)) profile.marital_status = 'unmarried';
-  } else if (/पुरुष|लड़का|बेटा|आदमी|purush|male|ladka/i.test(lower)) {
+  } else if (/पुरुष|लड़का|male|purush/i.test(lower)) {
     profile.gender = 'male';
     profile.tags.push('लिंग: पुरुष');
   }
 
-  // Disability / Divyangjan / Special Needs
-  if (/दिव्यांग|विकलांग|अपाहिज|अंध|बहरा|गूंगा|व्हीलचेयर|ट्राईसाइकिल|यूडीआईडी|कृत्रिम अंग|चलने में असमर्थ|disab|physically|handicap|special need|paralysis|wheelchair|tricycle|udid|blind|deaf/i.test(lower)) {
+  // Disability
+  if (/दिव्यांग|विकलांग|अपाहिज|disab|physically|handicap|wheelchair|udid/i.test(lower)) {
     profile.disability_status = true;
     profile.needs.push('disability_support');
-    profile.tags.push('विशेष श्रेणी: दिव्यांगजन (Physically Challenged / Divyang)');
+    profile.tags.push('विशेष श्रेणी: दिव्यांगजन');
   }
 
   // Social Category
-  if (/मुस्लिम|ईसाई|सिख|बौद्ध|जैन|अल्पसंख्यक|minority|muslim/i.test(lower)) {
+  if (/अल्पसंख्यक|मुस्लिम|ईसाई|minority|muslim/i.test(lower)) {
     profile.social_category = 'minority';
-    profile.tags.push('वर्ग: अल्पसंख्यक (Minority)');
-  } else if (/अनुसूचित जाति|दलित|महादलित|sc|dalit/i.test(lower)) {
+    profile.tags.push('वर्ग: अल्पसंख्यक');
+  } else if (/sc|दलित|महादलित|अनुसूचित जाति/i.test(lower)) {
     profile.social_category = 'sc';
-    profile.tags.push('वर्ग: अनुसूचित जाति (SC)');
-  } else if (/अनुसूचित जनजाति|आदिवासी|st|tribal/i.test(lower)) {
+    profile.tags.push('वर्ग: SC (अनुसूचित जाति)');
+  } else if (/st|आदिवासी|अनुसूचित जनजाति/i.test(lower)) {
     profile.social_category = 'st';
-    profile.tags.push('वर्ग: अनुसूचित जनजाति (ST)');
-  } else if (/पिछड़ा|ओबीसी|ईबीसी|obc|ebc/i.test(lower)) {
+    profile.tags.push('वर्ग: ST (अनुसूचित जनजाति)');
+  } else if (/ebc|अत्यंत पिछड़ा/i.test(lower)) {
+    profile.social_category = 'ebc';
+    profile.tags.push('वर्ग: EBC (अत्यंत पिछड़ा)');
+  } else if (/obc|पिछड़ा/i.test(lower)) {
     profile.social_category = 'obc';
-    profile.tags.push('वर्ग: पिछड़ा वर्ग (OBC/EBC)');
+    profile.tags.push('वर्ग: OBC (अन्य पिछड़ा)');
   }
 
   // Occupation
-  if (/कारीगर|शिल्पकार|बढ़ई|लोहार|दर्जी|कुम्हार|मोची|artisan|karigar|carpenter|blacksmith|mason|tailor/i.test(lower)) {
+  if (/कारीगर|शिल्पकार|बढ़ई|लोहार|दर्जी|कुम्हार|विश्वकर्मा|artisan/i.test(lower)) {
     profile.occupation = 'artisan';
     profile.tags.push('पेशा: पारंपरिक कारीगर / शिल्पकार');
   } else if (/दुकान|दुकानदार|किराना|व्यापार|कारोबार|ठेला|गुमटी|shop|shopkeeper|kirana|business|vendor/i.test(lower)) {
@@ -87,7 +81,7 @@ function extractProfile(text = '') {
   } else if (/मजदूर|मजदूरी|श्रमिक|दिहाड़ी|कुली|मनरेगा|लेबर|mazdoor|daily wage|laborer|e-shram|mgnrega/i.test(lower)) {
     profile.occupation = 'laborer';
     profile.tags.push('पेशा: असंगठित दिहाड़ी मजदूर');
-  } else if (/किसान|खेती|बटाईदार|कृषि|farmer|kisan|kheti/i.test(lower)) {
+  } else if (/किसान|खेती|बटाईदार|कृषि|खाद|यूरिया|डीएपी|बीज|farmer|kisan|kheti/i.test(lower)) {
     profile.occupation = 'farmer';
     profile.tags.push('पेशा: किसान / खेती');
   } else if (/बेरोजगार|रोजगार|काम सीखने|berojgar|unemployed|job seeker/i.test(lower)) {
@@ -147,8 +141,28 @@ function extractProfile(text = '') {
   return profile;
 }
 
-// POST /api/ai/match
-router.post('/match', (req, res) => {
+// POST /api/ai/extract
+router.post('/extract', (req, res) => {
+  try {
+    const { transcript } = req.body;
+    if (!transcript) {
+      return res.status(400).json({ success: false, message: 'Voice transcript is required' });
+    }
+    const profile = extractProfile(transcript);
+    res.json({
+      success: true,
+      data: {
+        profile,
+        confidence: 0.95
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// POST /api/ai/match — Enhanced AI Matcher with Gemini 1.5 Semantic Reasoning
+router.post('/match', async (req, res) => {
   try {
     const { transcript } = req.body;
     if (!transcript) {
@@ -156,114 +170,150 @@ router.post('/match', (req, res) => {
     }
 
     const profile = extractProfile(transcript);
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    // 1. If Gemini API Key is available, use Gemini Generative AI for Deep Semantic Reasoning
+    if (apiKey) {
+      try {
+        const schemesSummary = schemesData.map(s => ({
+          id: s.id,
+          name: s.hindiName || s.name,
+          category: s.category,
+          tagline: s.tagline,
+          benefit: s.benefit,
+          whoQualifies: s.whoQualifies
+        }));
+
+        const prompt = `You are "Yojana Sathi AI", the supreme government scheme matching intelligence for Bihar & Central Government welfare programs.
+Citizen Voice Transcript: "${transcript}"
+
+Scheme Database:
+${JSON.stringify(schemesSummary)}
+
+Task:
+1. Understand the citizen's exact situation (e.g. Senior citizen, Farmer, Divyangjan, Student, Laborer, Widow, Shopkeeper, Housing need, Crop damage, etc.).
+2. Pick top 4 to 7 most relevant schemes from the Scheme Database.
+3. Assign a matchScore (70-98) and a concise Hindi reason for each scheme.
+4. Output STRICT JSON only:
+{
+  "matchedIds": [
+    { "id": "scheme-id-here", "score": 95, "badge": "100% सटीक पात्रता", "reason": "संक्षिप्त हिंदी कारण" }
+  ],
+  "voiceSummary": "एक छोटा 20 शब्दों का हिंदी ऑडियो सारांश"
+}`;
+
+        const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 800, temperature: 0.2 }
+          })
+        });
+
+        if (geminiRes.ok) {
+          const geminiData = await geminiRes.json();
+          let rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+          const parsed = JSON.parse(rawText);
+          if (parsed.matchedIds && parsed.matchedIds.length > 0) {
+            const aiMatches = parsed.matchedIds.map(m => {
+              const base = schemesData.find(s => s.id === m.id);
+              if (!base) return null;
+              return {
+                ...base,
+                matchScore: m.score || 85,
+                matchStatus: m.score >= 70 ? 'HIGH' : 'MEDIUM',
+                matchBadge: m.badge || 'AI अनुशंसित योजना',
+                matchColor: 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10',
+                reasons: [m.reason || base.whoQualifies]
+              };
+            }).filter(Boolean);
+
+            if (aiMatches.length > 0) {
+              return res.json({
+                success: true,
+                data: {
+                  transcript,
+                  profile,
+                  matchedSchemes: aiMatches,
+                  totalCount: aiMatches.length,
+                  voiceSummary: parsed.voiceSummary
+                }
+              });
+            }
+          }
+        }
+      } catch (geminiErr) {
+        console.warn('Gemini Match Error, fallback to semantic matching:', geminiErr.message);
+      }
+    }
+
+    // 2. High-Performance Fallback Semantic Matcher
     const lower = transcript.toLowerCase();
+    const isSeniorQuery = /सीनियर|सिटीजन|वरिष्ठ|बुजुर्ग|वृद्ध|वृद्धा|वृद्धजन|पेंशन|बूढ़े|senior|citizen|elderly|old age|vridha|bujurg/i.test(lower);
+    const isDisabilityQuery = /दिव्यांग|विकलांग|अपाहिज|wheelchair|tricycle|udid|disab|physically|handicap/i.test(lower);
+    const isStudentQuery = /विद्यार्थी|छात्र|छात्रा|पढ़ाई|कॉलेज|स्कूल|12वीं|10वीं|ग्रेजुएशन|student|scholarship/i.test(lower);
+    const isWomanQuery = /महिला|औरत|लड़की|छात्रा|बेटी|कन्या|विधवा|woman|women|girl|female|daughter/i.test(lower);
+    const isFarmerQuery = /किसान|खेती|कृषि|खाद|यूरिया|डीएपी|बीज|फसल|farmer|kisan|crop|fertilizer/i.test(lower);
+    const isLaborerQuery = /मजदूर|मजदूरी|श्रमिक|दिहाड़ी|लेबर|ई-श्रम|आवास|घर नहीं|mazdoor|laborer|housing/i.test(lower);
+    const isBusinessQuery = /दुकान|दुकानदार|व्यापार|कारोबार|उद्यमी|मुद्रा|लोन|shop|business|loan|mudra/i.test(lower);
+
     const matches = [];
 
     for (const scheme of schemesData) {
       const crit = scheme.eligibility;
       if (!crit) continue;
 
-      let isDisqualified = false;
       let score = 0;
       const reasons = [];
+      let isDisqualified = false;
 
-      // 1. Disability check
-      if (crit.disability_required === true) {
-        if (profile.disability_status === true || /दिव्यांग|विकलांग|divyang|viklang/i.test(lower)) {
-          score += 55;
-          reasons.push('दिव्यांगता श्रेणी (Disability Support) के तहत पात्र');
-        } else {
-          isDisqualified = true;
-        }
-      }
+      if (crit.disability_required && !profile.disability_status && !isDisabilityQuery) isDisqualified = true;
+      if (crit.gender === 'female' && profile.gender === 'male' && !isWomanQuery) isDisqualified = true;
+      if (crit.min_age >= 60 && !isSeniorQuery && profile.age !== null && profile.age < 60) isDisqualified = true;
+      if (isSeniorQuery && (scheme.category === 'student' || scheme.category === 'youth')) isDisqualified = true;
+      if (isStudentQuery && scheme.category === 'elderly') isDisqualified = true;
+
       if (isDisqualified) continue;
 
-      // 2. Gender check
-      if (crit.gender && crit.gender !== 'any') {
-        if (profile.gender === crit.gender) {
-          score += 35;
-          reasons.push('महिला/बालिका विशेष योजना');
-        } else if (profile.gender === 'male' && crit.gender === 'female') {
-          isDisqualified = true;
-        } else if (profile.gender === 'unspecified') {
-          if (!/लड़की|महिला|औरत|छात्रा|बेटी|कन्या|ladki|mahila/i.test(lower)) {
-            if (scheme.id === 'kanya-utthan' || scheme.id === 'widow-pension-bihar' || scheme.id === 'pmmvy-matru-vandana' || scheme.id === 'begum-hazrat-mahal') {
-              isDisqualified = true;
-            }
-          }
-        }
+      if (isSeniorQuery && (scheme.category === 'elderly' || scheme.id === 'ayushman-bharat')) {
+        score += 75;
+        reasons.push('वरिष्ठ नागरिक (Senior Citizen 60+) विशेष कल्याण योजना');
       }
-      if (isDisqualified) continue;
-
-      // 3. Marital status check
-      if (crit.marital_status && crit.marital_status !== 'any') {
-        if (crit.marital_status === 'widow') {
-          if (profile.marital_status === 'widow' || /विधवा|vidhwa|widow/i.test(lower)) {
-            score += 50;
-            reasons.push('विधवा सामाजिक सुरक्षा पेंशन हेतु पूर्ण पात्र');
-          } else {
-            isDisqualified = true;
-          }
-        }
+      if (isDisabilityQuery && (scheme.category === 'disability' || scheme.id === 'ayushman-bharat')) {
+        score += 75;
+        reasons.push('दिव्यांगजन सहायक उपकरण व सुरक्षा योजना');
       }
-      if (isDisqualified) continue;
-
-      // 4. Age check
-      if (profile.age !== null) {
-        if (crit.min_age !== null && profile.age < crit.min_age) isDisqualified = true;
-        if (crit.max_age !== null && profile.age > crit.max_age) isDisqualified = true;
-        if (!isDisqualified) {
-          if (crit.min_age >= 60) score += 45;
-          else score += 15;
-        }
-      } else {
-        if (crit.min_age >= 60 && !/पेंशन|बुजुर्ग|वृद्ध|pension|bujurg|vridha/i.test(lower)) isDisqualified = true;
+      if (isStudentQuery && (scheme.category === 'student' || scheme.category === 'youth')) {
+        score += 70;
+        reasons.push('विद्यार्थी उच्च शिक्षा व छात्रवृत्ति सहायता');
       }
-      if (isDisqualified) continue;
-
-      // 5. Occupation check
-      if (crit.occupations && !crit.occupations.includes('any')) {
-        const matchesOcc = crit.occupations.some(o => o === profile.occupation || lower.includes(o));
-        if (matchesOcc) {
-          score += 45;
-          reasons.push(`पेशा आधारित पात्रता (${profile.occupation})`);
-        } else {
-          if (scheme.id === 'pm-kisan' && (profile.occupation === 'student' || profile.occupation === 'shopkeeper' || profile.occupation === 'artisan' || profile.occupation === 'unemployed')) isDisqualified = true;
-          if (scheme.id === 'student-credit-card' && (profile.occupation === 'elderly' || profile.occupation === 'farmer')) isDisqualified = true;
-        }
-      } else {
-        score += 15;
+      if (isWomanQuery && scheme.category === 'women') {
+        score += 70;
+        reasons.push('महिला सशक्तिकरण व सुरक्षा योजना');
       }
-      if (isDisqualified) continue;
-
-      // 6. Social Category Check
-      if (crit.social_category && !crit.social_category.includes('any')) {
-        if (crit.social_category.length === 1 && crit.social_category[0] === 'minority') {
-          if (profile.social_category !== 'minority' && !/अल्पसंख्यक|minority|muslim/i.test(lower)) {
-            isDisqualified = true;
-          }
-        }
+      if (isFarmerQuery && scheme.category === 'kisan') {
+        score += 70;
+        reasons.push('कृषि एवं किसान कल्याण योजना');
       }
-      if (isDisqualified) continue;
-
-      // 7. Land check
-      if (crit.land_required === true && !profile.has_land && !/जमीन|भूमि|land|bigha/i.test(lower)) {
-        isDisqualified = true;
+      if (isLaborerQuery && (scheme.category === 'laborer' || scheme.category === 'housing')) {
+        score += 65;
+        reasons.push('असंगठित निर्माण श्रमिक व आवास सहायता');
       }
-      if (isDisqualified) continue;
+      if (isBusinessQuery && scheme.category === 'business') {
+        score += 70;
+        reasons.push('स्वरोजगार व व्यापार विस्तार ऋण');
+      }
 
-      // 8. Need specific boosts
-      if (scheme.id === 'ayushman-bharat' && (profile.needs.includes('health_treatment') || profile.has_ration_card || /इलाज|hospital/i.test(lower))) score += 40;
-      if (scheme.id === 'pm-awas-gramin' && (profile.has_pucca_house === false || /कच्चा|आवास/i.test(lower))) score += 40;
-      if (scheme.id === 'pm-mudra-yojana' && (profile.occupation === 'shopkeeper' || /दुकान|लोन/i.test(lower))) score += 40;
-      if (scheme.id === 'kanya-utthan' && profile.gender === 'female' && (profile.education_level === '12th_pass' || profile.education_level === 'graduate')) score += 45;
-      if (scheme.id === 'eshram-bocw-welfare' && profile.occupation === 'laborer') score += 45;
-
-      const finalScore = Math.min(Math.round(score), 100);
-      if (finalScore >= 35) {
+      if (score >= 35) {
         matches.push({
           ...scheme,
-          matchScore: finalScore,
+          matchScore: Math.min(score, 98),
+          matchStatus: score >= 70 ? 'HIGH' : 'MEDIUM',
+          matchBadge: score >= 70 ? '100% सटीक पात्रता' : 'उच्च पात्रता',
+          matchColor: score >= 70 ? 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10' : 'text-blue-400 border-blue-500/40 bg-blue-500/10',
           reasons: reasons.length > 0 ? reasons : [scheme.whoQualifies]
         });
       }
@@ -296,35 +346,13 @@ router.post('/copilot-chat', async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
     const lower = question.toLowerCase();
 
-    // Contextual responses if offline or without key
-    let answerHindi = "";
-    let relatedSchemeId = null;
+    let answerHindi = "योजना साथी AI के अनुसार आप सरकारी योजनाओं की पात्रता, जरूरी दस्तावेज, आवेदन प्रक्रिया और नजदीकी CSC केंद्र की जानकारी सीधे अपनी आवाज़ में पूछ सकते हैं।";
 
-    if (/आधार|गलत नाम|correction|update/i.test(lower)) {
-      answerHindi = "यदि आधार कार्ड में नाम या जन्मतिथि में गलती है, तो नजदीकी आधार सेवा केंद्र या पोस्ट ऑफिस में जाकर अपडेट कराएं। योजना का लाभ लेने हेतु आधार का नाम बैंक खाते से 100% मेल खाना जरूरी है।";
-    } else if (/शिकायत|पैसे मांग|दलाल|भ्रष्टाचार|officer/i.test(lower)) {
-      answerHindi = "यदि कोई अधिकारी या दलाल पैसे मांगता है, तो तुरंत बिहार सीएम हेल्पलाइन 1076 या विजिलेंस हेल्पलाइन पर शिकायत दर्ज करें। योजना साथी के 'शिकायत एवं हेल्पलाइन' सेक्शन में आपको सीधा नंबर मिल जाएगा।";
-    } else if (/जमीन की रसीद|lpc|bataidar|रैयत/i.test(lower)) {
-      answerHindi = "यदि आपके पास जमीन की अद्यतन रसीद नहीं है, तो biharbhumi.bihar.gov.in से ऑनलाइन परिमार्जन या लगान रसीद डाउनलोड करें। बटाईदार किसान वार्ड सदस्य से सत्यापित स्व-घोषणा पत्र लगाकर भी फसल सहायता ले सकते हैं।";
-    } else if (/रिजेक्ट|अस्वीकृत|कारण/i.test(lower)) {
-      answerHindi = "फॉर्म रिजेक्ट होने के 3 मुख्य कारण होते हैं: (1) बैंक खाता DBT से लिंक न होना, (2) आधार में नाम की स्पेलिंग गलत होना, (3) भूमि रिकॉर्ड का पुराना होना। e-KYC कराकर पुनः आवेदन कर सकते हैं।";
-    } else {
-      answerHindi = "योजना साथी AI के अनुसार आप सरकारी योजनाओं की पात्रता, जरूरी दस्तावेज, आवेदन प्रक्रिया और नजदीकी CSC केंद्र की जानकारी सीधे अपनी आवाज़ में पूछ सकते हैं।";
-    }
-
-    // If Gemini API Key exists, use live Generative AI!
     if (apiKey) {
       try {
         const prompt = `You are "Yojana Sathi AI Copilot" (योजना साथी), an expert rural government scheme advisor for citizens of Bihar and India (covering myScheme.gov.in and Bihar state schemes).
-User's query: "${question}"
-
-Provide a clear, respectful, highly practical and accurate response in simple spoken Hindi (हिन्दी) or Bhojpuri.
-Include:
-1. Direct clear answer to the user's doubt.
-2. Documents or steps needed.
-3. Official portal or helpline where they should go.
-
-Keep the response concise (under 80 words) and voice-friendly.`;
+User query: "${question}"
+Provide a clear, respectful, practical answer in simple spoken Hindi (हिन्दी) under 70 words.`;
 
         const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
@@ -338,12 +366,10 @@ Keep the response concise (under 80 words) and voice-friendly.`;
         if (geminiRes.ok) {
           const geminiData = await geminiRes.json();
           const liveText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (liveText) {
-            answerHindi = liveText.trim();
-          }
+          if (liveText) answerHindi = liveText.trim();
         }
       } catch (err) {
-        console.warn('Gemini API fetch error, fallback used:', err.message);
+        console.warn('Gemini API error:', err.message);
       }
     }
 
@@ -351,111 +377,8 @@ Keep the response concise (under 80 words) and voice-friendly.`;
       success: true,
       data: {
         question,
-        answer: answerHindi,
-        relatedSchemeId
+        answer: answerHindi
       }
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// POST /api/ai/live-discover — Dynamic New Scheme Discovery
-router.post('/live-discover', async (req, res) => {
-  try {
-    const { query } = req.body;
-    if (!query) {
-      return res.status(400).json({ success: false, message: 'Query is required' });
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    let discoveredScheme = null;
-
-    if (apiKey) {
-      const prompt = `You are a real-time government scheme knowledge engine integrating data from myScheme.gov.in and Bihar Government portals.
-User searched for an upcoming or unlisted government scheme: "${query}"
-
-Synthesize the real official scheme details into a structured JSON schema:
-{
-  "scheme_id": "kebab-case-id",
-  "name": "English Scheme Name",
-  "hindiName": "हिन्दी में योजना का नाम",
-  "tagline": "आकर्षक लाभ सारांश",
-  "category": "kisan | health | student | women | elderly | disability | business | housing | employment | food",
-  "categoryLabel": "हिन्दी श्रेणी",
-  "level": "central | state",
-  "benefit": "लाभ राशि",
-  "benefitDetail": "विस्तृत लाभ",
-  "whoQualifies": "कौन आवेदन कर सकता है",
-  "documentsRequired": ["दस्तावेज 1", "दस्तावेज 2", "दस्तावेज 3"],
-  "applySteps": ["चरण 1", "चरण 2", "चरण 3"],
-  "officialLink": "https://myscheme.gov.in",
-  "audioExplanationHindi": "आवाज़ में बोलने हेतु 1 लाइन का संक्षिप्त विवरण।"
-}
-
-Respond with ONLY valid JSON:`;
-
-      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: "application/json" }
-        })
-      });
-
-      if (geminiRes.ok) {
-        const gData = await geminiRes.json();
-        const rawJson = gData.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (rawJson) {
-          discoveredScheme = JSON.parse(rawJson);
-        }
-      }
-    }
-
-    // Deterministic fallback for new 2026 schemes (PM Surya Ghar, Namo Drone Didi, etc.)
-    if (!discoveredScheme) {
-      const q = query.toLowerCase();
-      if (/solar|surya ghar|bijli|rooftop|सौर ऊर्जा/i.test(q)) {
-        discoveredScheme = {
-          scheme_id: "pm-surya-ghar",
-          name: "PM Surya Ghar: Muft Bijli Yojana",
-          hindiName: "प्रधानमंत्री सूर्य घर: मुफ्त बिजली योजना",
-          tagline: "छत पर सोलर पैनल लगाने पर ₹78,000 तक की सरकारी सब्सिडी + हर महीने 300 यूनिट मुफ्त बिजली",
-          category: "housing",
-          categoryLabel: "ऊर्जा एवं आवास",
-          level: "central",
-          benefit: "₹78,000 तक सब्सिडी + 300 यूनिट मुफ्त बिजली",
-          benefitDetail: "1 किलोवाट से 3 किलोवाट तक सोलर पैनल लगाने पर सीधे बैंक खाते में सब्सिडी।",
-          whoQualifies: "छत वाले सभी आवासीय मकान मालिक जिनके पास वैध बिजली कनेक्शन हो",
-          documentsRequired: ["बिजली बिल", "आधार कार्ड", "छत का मालिकाना हक प्रमाण", "बैंक पासबुक"],
-          applySteps: ["pmsuryaghar.gov.in पर रजिस्ट्रेशन करें।", "डिस्कॉम से सोलर मीटर अप्रूवल कराएं।"],
-          officialLink: "https://pmsuryaghar.gov.in",
-          audioExplanationHindi: "पीएम सूर्य घर योजना में घर की छत पर सोलर पैनल लगाने के लिए सरकार अठहत्तर हजार रुपये तक की सब्सिडी देती है।"
-        };
-      } else if (/drone|ड्रोन दीदी|drone didi/i.test(q)) {
-        discoveredScheme = {
-          scheme_id: "namo-drone-didi",
-          name: "Namo Drone Didi Scheme",
-          hindiName: "नमो ड्रोन दीदी योजना",
-          tagline: "महिला स्वयं सहायता समूहों को खेती में कीटनाशक छिड़काव हेतु 80% (₹8 लाख तक) ड्रोन सब्सिडी व पायलट ट्रेनिंग",
-          category: "women",
-          categoryLabel: "महिला सशक्तिकरण",
-          level: "central",
-          benefit: "80% सब्सिडी (अधिकतम ₹8,00,000) + मुफ्त 15 दिन ड्रोन पायलट ट्रेनिंग",
-          benefitDetail: "खेती में आधुनिक ड्रोन तकनीक के इस्तेमाल हेतु SHG महिलाओं को ड्रोन उपकरण व मासिक आय का अवसर।",
-          whoQualifies: "जीविका / दीनदयाल अंत्योदय योजना से जुड़ी महिला स्वयं सहायता समूह की दीदियां",
-          documentsRequired: ["SHG सदस्यता प्रमाण", "आधार कार्ड", "10वीं पास प्रमाण पत्र", "बैंक पासबुक"],
-          applySteps: ["अपने ब्लॉक के जीविका/NRLM कार्यालय में संपर्क करें।", "ड्रोन पायलट ट्रेनिंग हेतु आवेदन दें।"],
-          officialLink: "https://agricoop.nic.in",
-          audioExplanationHindi: "नमो ड्रोन दीदी योजना में स्वयं सहायता समूह की महिलाओं को मुफ्त ड्रोन पायलट ट्रेनिंग और आठ लाख रुपये तक का अनुदान मिलता है।"
-        };
-      }
-    }
-
-    res.json({
-      success: true,
-      data: discoveredScheme
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
