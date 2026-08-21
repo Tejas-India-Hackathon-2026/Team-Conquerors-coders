@@ -153,4 +153,3 @@ User
 → Scheme Matching
 → Eligibility Check
 → Scheme Details
-→ Action /
