@@ -1,7 +1,8 @@
 import express from 'express';
-import schemesData from '../data/schemes.json' assert { type: 'json' };
+import { SCHEMES_DATABASE } from '../data/schemes.js';
 
 const router = express.Router();
+const schemesData = SCHEMES_DATABASE;
 
 // GET all schemes (with optional category & search filter)
 router.get('/', (req, res) => {
